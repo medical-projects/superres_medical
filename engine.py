@@ -1,29 +1,14 @@
 """
-this module is a cancer classifier model
-which contains
- 1. model
- 2. functions for train/eval
-
-this classifier tries to classify cancers
-into 5 classes.
+module to leverage models
 """
 
 import tensorflow as tf
 import tio
 import skopt
 import utility as util
-import logging
 import os
-logging.getLogger().setLevel(logging.INFO)
 
-train_dir = "data/train"
-eval_dir = "data/eval"
-model_dir = "summary"
-
-# Explicitly tell tensorflow to use all the GPU
-
-
-def get_estimator(model_module, model_dir=model_dir, save_interval=100, params=None, warm_start_setting=None):
+def get_estimator(model_module, model_dir, save_interval=100, params=None, warm_start_setting=None):
     """
     this function returns Estimator
     Args:
@@ -68,7 +53,7 @@ def get_estimator(model_module, model_dir=model_dir, save_interval=100, params=N
     )
 
 
-def train(model_module, mode, steps=3000, no_healthy=False, model_dir=None, warm_start_setting=None):
+def train(model_module, data_dir, steps=3000, no_healthy=False, model_dir=None, warm_start_setting=None):
     """
     this function trains the model.
     Args:
@@ -83,21 +68,20 @@ def train(model_module, mode, steps=3000, no_healthy=False, model_dir=None, warm
     eval_res, export_res = tf.estimator.train_and_evaluate(
         estimator=estimator,
         train_spec=tf.estimator.TrainSpec(
-            input_fn=lambda: tio.input_func_train(train_dir, mode=mode, no_healthy=no_healthy), max_steps=steps
+            input_fn=lambda: tio.input_func_train(data_dir, no_healthy=no_healthy), max_steps=steps
         ),
         eval_spec=tf.estimator.EvalSpec(
-            input_fn=lambda: tio.input_func_test(eval_dir, mode=mode, no_healthy=no_healthy), throttle_secs=0
+            input_fn=lambda: tio.input_func_test(data_dir, no_healthy=no_healthy), throttle_secs=0
         ),
     )
     if eval_res is None:
         eval_res = estimator.evaluate(
-            input_fn=lambda: tio.input_func_test(eval_dir, True)
+            input_fn=lambda: tio.input_func_test(data_dir, True)
         )
     print(eval_res)
     return eval_res
 
-
-def hyperparameter_optimize(model_module, mode, output="hyper_opt_res", max_steps=10000, n_calls=1000):
+def hyperparameter_optimize(model_module, data_dir, output="hyper_opt_res", max_steps=10000, n_calls=1000):
     """
     this function will perform hyperperameter optimization
     to the model and save the result to "output" file
@@ -145,18 +129,18 @@ def hyperparameter_optimize(model_module, mode, output="hyper_opt_res", max_step
             eval_res, export_res = tf.estimator.train_and_evaluate(
                 estimator=estimator,
                 train_spec=tf.estimator.TrainSpec(
-                    input_fn=lambda: tio.input_func_train(train_dir, mode=mode),
+                    input_fn=lambda: tio.input_func_train(data_dir),
                     max_steps=max_steps,
                     hooks=[early_stop],
                 ),
                 eval_spec=tf.estimator.EvalSpec(
-                    input_fn=lambda: tio.input_func_test(eval_dir, mode=mode),
+                    input_fn=lambda: tio.input_func_test(data_dir),
                     throttle_secs=0,
                 ),
             )
             if eval_res is None:
                 eval_res = estimator.evaluate(
-                    input_fn=lambda: tio.input_func_test(eval_dir)
+                    input_fn=lambda: tio.input_func_test(data_dir)
                 )
         except tf.train.NanLossDuringTrainingError:
             print("Diverged")
@@ -181,7 +165,6 @@ def hyperparameter_optimize(model_module, mode, output="hyper_opt_res", max_step
         f.write(str(res))
 
     return res
-
 
 def predict(model_module, image):
     """

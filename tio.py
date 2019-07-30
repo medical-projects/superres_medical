@@ -11,15 +11,6 @@ import regex
 import tensorflow as tf
 import utility as util
 
-def _print_error(message, func_name):
-    '''
-    this function will print out error
-    message
-    '''
-    print('{} in {}'.format(message, func_name))
-    return
-
-
 def create_simple_ds(data_dir, mode, no_healthy=False):
     '''
     this func will create simplest dataset
@@ -38,24 +29,6 @@ def create_simple_ds(data_dir, mode, no_healthy=False):
         _print_error(mode_error_msg, sys._getframe().f_code.co_name)
         raise RuntimeError
     # at this point, dataset = dictionary
-    return dataset
-
-def filter_out_healthy(dataset):
-    '''
-    this function will filter out healthy cases from
-    given dataset.
-    this func assumes that dataset has key 'group'
-    and 'group = 0' indicates healthy
-
-    DEPRECATED
-    use no_healthy=True in create_simple_ds_for_annotation
-    instead.
-    '''
-    print('WARNING: filter_out_healthy is now deprecated')
-    dataset = dataset.filter(
-        lambda dictionary: tf.not_equal(dictionary['group'], 0)
-    )
-    dataset = decrement_group(dataset)
     return dataset
 
 def decrement_group(dataset):
@@ -85,7 +58,6 @@ def determine_channel_size_on_mode(dataset, mode):
         raise RuntimeError
     return dataset
 
-
 def extract_from_dict(dict_in, keys_to_extract, remove):
     '''
     this function will extract elements from
@@ -101,7 +73,6 @@ def extract_from_dict(dict_in, keys_to_extract, remove):
         if remove:
             del dict_in[key]
     return dict_out
-
 
 def separate_feature_label(dataset, mode):
     '''
@@ -134,7 +105,6 @@ def separate_feature_label(dataset, mode):
         _print_error(mode_error_msg, sys._getframe().f_code.co_name)
         raise RuntimeError
     return dataset
-
 
 def input_func_train(data_dir, mode, no_healthy=False):
     """
@@ -337,7 +307,7 @@ def create_simple_ds_for_annotation(data_dir, label_value=(255, 0, 0), no_health
     return dataset
 
 
-def query_group(patient_id, data_dir='./data'):
+def query_group(patient_id, data_dir='./data', binarize=False):
     '''
     this func tries to figure out the cancer class
     for given patient id
@@ -358,11 +328,7 @@ def query_group(patient_id, data_dir='./data'):
         for group in os.listdir(group_dir):
             if patient_id in os.listdir('{}/{}'.format(group_dir, group)):
                 group_int = int(regex.sub(r'.*(\d+).*', r'\1', group))
-
-                ## ADDED
-                group_int = 1 if group_int <= 3 else 2
-                ## ADDED
-
+                if binarize: group_int = 1 if group_int <= 3 else 2
                 return group_int
 
         if patient_id in os.listdir('{}/RAW/healthy_cases'.format(data_dir)):
@@ -370,7 +336,6 @@ def query_group(patient_id, data_dir='./data'):
         print('Error: failed to retrieve group for patient_id: {}'.format(patient_id))
         return -1
     return tf.py_func(__query, [patient_id, data_dir], tf.int64)
-
 
 def create_simple_ds_for_both(data_dir, label_value=None, no_healthy=False, error_tolerant_mode=False):
     '''
@@ -389,7 +354,6 @@ def create_simple_ds_for_both(data_dir, label_value=None, no_healthy=False, erro
         dataset = dataset.filter(
             lambda dictionary: tf.not_equal(dictionary['group'], -1))
     return dataset
-
 
 def lambda_for_dict(src_dst_lambdas, target_dict):
     '''
