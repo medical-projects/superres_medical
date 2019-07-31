@@ -69,3 +69,16 @@ def net_in_net(input_, blocks, args_list=None):
             outputs.append(blocks(input_))
 
     return tf.concat(outputs)
+
+def chain(input_, block_args_pairs):
+    '''
+    this func will chain a list of blocks
+    withou any skip connections.
+
+    Args:
+        block_args_pairs: a list of tuple(block, args)
+    '''
+    output = input_
+    for block, args in block_args_pairs:
+        output = block(output, **args)
+    return output
