@@ -4,7 +4,7 @@ GAN-CIRCLE without gan structure
 import tensorflow as tf
 from models import components
 from functools import partial
-from utils import tf_ops
+from upsample.utils import tfops
 import os
 
 default_param = {
@@ -89,7 +89,7 @@ def model_fn(features, labels, mode, params, config):
     hrimage = tf.cond(
         tf.equal(tf.shape(hrimage), tf.shape(output)),
         true_fn=lambda: hrimage,
-        false_fn=lambda: tf_ops.image_,
+        false_fn=lambda: tfops.image_central_crop_boundingbox(output, target_size),
     )
 
     loss = tf.losses.mean_squared_error(hrimage, output)
