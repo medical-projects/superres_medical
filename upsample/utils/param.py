@@ -4,6 +4,8 @@ functions to deal with params
 # built-in
 import os
 import pickle
+import regex
+from copy import deepcopy
 from collections import ChainMap
 
 # external
@@ -111,9 +113,8 @@ def save_config(file_target, params, exclude_list=None):
     this func will save a paramters
     into a file
     '''
-    directory = get_directory(file_target)
-    if not os.path.exists(directory):
-        recursive_mkdir(directory)
+    directory = os.path.dirname(file_target)
+    os.makedirs(directory, exist_ok=True)
 
     params = dict(params)
     params_cp = deepcopy(params)
@@ -125,3 +126,22 @@ def save_config(file_target, params, exclude_list=None):
         pickle.dump(params_cp, f)
     return
 
+def config_to_string(config, hash_table=None, hash_len=9):
+    """
+    this function converts config to string
+    so that it can be used as a directory name or file name
+
+    Args:
+        config: config data to convert
+        hash_table: (optional) supposed to be upsame.utils.hash.HashTable
+            if provided, this func will use the hash value to determine
+            the string for a config.
+        hash_len: (optional) the len of hash value in deciminal
+    """
+    if not hash_table:
+        config = dict(config)
+        return regex.sub('[\'\{\}\s]', '', str(config))
+    else:
+        result = hash_table.get_hash(config)
+        result = '{0:0{length}d}'.format(result, length=hash_len)
+        return result
