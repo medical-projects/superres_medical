@@ -117,8 +117,7 @@ def instant_train(data_dir, model_dir, pretrained=None, steps=10000):
     If you want to train the model seriously,
     use 'train' function instead.
     Args:
-        tfrecord: str representing path for a tfrecord,
-            or list of str, each of them representing tfrecord
+        data_dir: a path to a dir where train/eval data are located
         model_dir: (str) where to save the information of paramters and
             summaries
         pretrained: (str) path which holds checkpoint that is already trained
@@ -143,14 +142,11 @@ def instant_train(data_dir, model_dir, pretrained=None, steps=10000):
     return
 
 
-def train(doc_name_train, doc_name_eval, label_name=None, params=None, iteration=1000, interval=1000, model_dir=None, model_dir_parent=None):
+def train(datadir, params=None, iteration=1000, interval=1000, model_dir=None, model_dir_parent=None):
     """
     this function trains the model for adding label for each token
     Args:
-        doc_name_train: name for a file which is either a pdf/txt or tfrecords
-        doc_name_eval: name for a file which is either a pdf/txt or tfrecords
-        label_name: name for CSV file. this can be 'None' if you specify
-                    tfrecords files for a input file.
+        datadir: a path to a dir where train/eval data are located
         params: (dict) paramters
         iteration: the number of train/eval
         interval: the steps of training in each iteration
@@ -158,27 +154,28 @@ def train(doc_name_train, doc_name_eval, label_name=None, params=None, iteration
         model_dir_parent: (str) if this arg is provided, this func will decide the model_dir
             according to the params, and create the directory under 'model_dir_parent'
     """
+    hash_table = utils.hash.HashTable(save_file=os.path.join(model_dir_parent, 'hash_table'))
+
     tf.summary.FileWriterCache.clear()
     if model_dir_parent is not None:
         model_dir = os.path.join(
             model_dir_parent,
-            util.config_to_string(params, hash_=True, hash_table_file=os.path.join(model_dir_parent, 'hash_table'))
+            utils.param.config_to_string(params, hash_table=hash_table)
         )
-    classifier = get_estimator(params=params, model_dir=model_dir, save_interval=interval)
+
+    estimator = get_estimator(params=params, model_dir=model_dir, save_interval=interval)
+    dataset_provider = data.DatasetFactory(datadir=datadir)
     for i in range(iteration):
-        classifier.train(
-            input_fn=lambda: tio.input_func_train(doc_name_train, label_name),
+        estimator.train(
+            input_fn=dataset_provider.input_func_train(batch_size=estimator.param.batch_size),
             steps=interval,
         )
-        eval_results = classifier.evaluate(
-            input_fn=lambda: tio.input_func_test(doc_name_eval, label_name)
-        )
+        eval_results = estimator.evaluate(input_fn=dataset_provider.input_eval())
     print(eval_results)
 
 
 def hyperparameter_optimize(
-        doc_name_train,
-        doc_name_eval,
+        datadir,
         candidates,
         output="hyper_opt_res",
         max_steps=5000,
@@ -194,10 +191,7 @@ def hyperparameter_optimize(
     argument.
 
     Args:
-        doc_name_train: the path for tfrecords files which to use for training
-                        this can be either a str of a list of str
-        doc_name_eval: the path for tfrecords files which to use for evaluation
-                        this can be either a str of a list of str
+        datadir: a path to a dir where train/eval data are located
         output: the output directory where to save the results
         max_steps: the max steps for each trial
         n_calls: the max num for trials
@@ -209,6 +203,8 @@ def hyperparameter_optimize(
     This function will perform training for (max_steps * n_call) steps totally.
     """
     assert isinstance(candidates, OrderedDict), 'candidates must be OrderedDict'
+    hash_table = utils.hash.HashTable(save_file=os.path.join(output, 'hash_table'))
+    dataset_provider = data.DatasetFactory(datadir=datadir)
 
     def wrapper(params_list, unfixed_params, fixed_params=[]):
         """wrapper func for get_estimator"""
@@ -220,13 +216,7 @@ def hyperparameter_optimize(
         print()
 
         eval_res = None
-        model_dir = os.path.join(
-            output,
-            util.config_to_string(
-                params,
-                hash_=True,
-                hash_table_file=os.path.join(output, 'hash_table')),
-        )
+        model_dir = os.path.join(output, utils.param.config_to_string(params, hash_table=hash_table))
         config_path = os.path.join(model_dir, 'config_hyper_opt')
         prev_result = util.get_result(model_dir)
 
@@ -247,11 +237,9 @@ def hyperparameter_optimize(
                 eval_res, export_res = tf.estimator.train_and_evaluate(
                     estimator=estimator,
                     train_spec=tf.estimator.TrainSpec(
-                        input_fn=lambda: tio.input_func_train(doc_name_train, None),
+                        input_fn=dataset_provider.input_train(batch_size=estimator.param.batch_size),
                         max_steps=max_steps, hooks=[early_stop],),
-                    eval_spec=tf.estimator.EvalSpec(
-                        input_fn=lambda: tio.input_func_test(doc_name_eval, None),
-                        throttle_secs=0,),
+                    eval_spec=tf.estimator.EvalSpec(input_fn=dataset_provider.input_eval(), throttle_secs=0,),
                 )
             except tf.train.NanLossDuringTrainingError:
                 logger.error("Diverged")
@@ -263,7 +251,7 @@ def hyperparameter_optimize(
                 eval_res = {"accuracy": -2}
 
         counter += 1
-        util.save_config(config_path, params)
+        utils.param.save_config(config_path, params)
         util.save_result(model_dir, eval_res['accuracy'])
 
         # Avoid the 'too many open files' issue.
@@ -325,14 +313,3 @@ def hyperparameter_optimize(
         f.write(str(res))
 
     return res
-
-def predict(file_path, model_dir=None, shuffle=False):
-    """
-    this function predicts the label for given input with
-     weights that is generated from training session.
-    """
-    classifier = get_estimator(model_dir=model_dir)
-    result = classifier.predict(
-        input_fn=lambda: tio.input_func_predict(file_path, shuffle=shuffle)
-    )
-    return result
