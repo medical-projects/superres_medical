@@ -2,11 +2,11 @@
 provides hash function with auto-saving feature
 '''
 # built-in
-from bidict import bidict
 import pickle
 import os
 
 # external
+from bidict import bidict
 
 # original
 
