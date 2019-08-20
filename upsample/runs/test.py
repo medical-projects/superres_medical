@@ -23,7 +23,11 @@ candidates = OrderedDict([
 
 
 def main():
-    engine.hyperparameter_optimize(datadir="/kw_resources", candidates=candidates)
+    engine.hyperparameter_optimize(
+        datadir="/kw_resources/datasets/projects/upsample",
+        candidates=candidates,
+        output='/kw_resources/results/upsample/hyper_opt_res'
+    )
     return
 
 
