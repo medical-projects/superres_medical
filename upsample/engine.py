@@ -218,7 +218,7 @@ def hyperparameter_optimize(
         print()
 
         eval_res = None
-        model_dir = os.path.join(output, utils.param.config_to_string(params, hash_table=hash_table))
+        model_dir = os.path.join(output, utils.param.to_string(params, hash_table=hash_table))
 
         if not allow_duplicate and utils.result.exists(model_dir):
             logger.info('Duplicate trial found, skippking...')
