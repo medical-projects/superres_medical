@@ -15,9 +15,9 @@ import upsample.engine as engine
 candidates = OrderedDict([
     ("model", ['gan_circle_nongan']),
     ("add_bicubic", [True, False]),
-    ("feature_extract_init_filteres", [64]),
-    ("feature_extract_final_filteres", [16]),
-    ("feature_extract_filter_step", [3]),
+    ("feature_extract_init_filteres", [32, 64]),
+    ("feature_extract_final_filteres", [8, 16, 32]),
+    ("feature_extract_filter_step", [3, 6]),
     ("upsample_scale", [2]),
 ])
 
