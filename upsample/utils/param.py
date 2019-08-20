@@ -108,11 +108,12 @@ def merge(*dicts):
     combined = ChainMap(*dicts)
     return dict(combined)
 
-def save(file_target, params, exclude_list=None):
+def save(save_dir, params, exclude_list=None, file_name='config'):
     '''
     this func will save a paramters
     into a file
     '''
+    file_target = os.path.join(save_dir, file_name)
     directory = os.path.dirname(file_target)
     os.makedirs(directory, exist_ok=True)
 

@@ -8,6 +8,7 @@ from upsample.utils import tfops
 import os
 
 default_param = {
+    'model': 'gan_circle_nongan',
     'add_bicubic': True,
     'feature_extract_init_filteres': 64,
     'feature_extract_final_filteres': 16,

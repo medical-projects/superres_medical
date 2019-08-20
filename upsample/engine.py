@@ -94,7 +94,7 @@ def get_estimator(
 
     if params is not None:
         if model_dir is not None:
-            utils.param.save(model_dir + "/config", params)
+            utils.param.save(model_dir, params)
 
     print("Parameter: {}".format(dict(params)))
     if not utils.param.validate(params, model_module.default_params):
@@ -182,6 +182,7 @@ def hyperparameter_optimize(
         max_steps=5000,
         n_calls=200,
         allow_duplicate=False,
+        logger=logger,
 ):
     """
     this function will perform hyperperameter optimization
@@ -218,10 +219,9 @@ def hyperparameter_optimize(
 
         eval_res = None
         model_dir = os.path.join(output, utils.param.config_to_string(params, hash_table=hash_table))
-        config_path = os.path.join(model_dir, 'config_hyper_opt')
 
         if not allow_duplicate and utils.result.exists(model_dir):
-            print('INFO: Duplicate trial found, skippking...')
+            logger.info('Duplicate trial found, skippking...')
             eval_res = utils.result.load(model_dir)
 
         else:
@@ -251,7 +251,7 @@ def hyperparameter_optimize(
                 eval_res = {"accuracy": -2}
 
         counter += 1
-        utils.param.save(config_path, params)
+        utils.param.save(config_path, params, file_name='config_hyper_opt')
         utils.result.save(eval_res, model_dir)
 
         # Avoid the 'too many open files' issue.
