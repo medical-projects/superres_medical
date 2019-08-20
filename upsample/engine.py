@@ -11,6 +11,7 @@ from copy import deepcopy
 from collections import OrderedDict
 import sys
 import os
+import traceback
 
 # External
 import skopt
@@ -68,8 +69,8 @@ def get_estimator(
         save_summary_steps=save_interval,
         session_config=config_session,
     )
-    params_model = utils.param.load_config(model_dir, validate=False)
-    params_warm = utils.param.load_config(warm_start, validate=False)
+    params_model = utils.param.load(model_dir, validate=False)
+    params_warm = utils.param.load(warm_start, validate=False)
     params = utils.param.merge_dicts(params_warm, params_model, params)
 
     if params is not None:
@@ -81,7 +82,7 @@ def get_estimator(
             model_specifier = new_model_specifier
             print(model_specifier)
         else:
-            if utils.param.config_validator(params, getattr(models, model_specifier).default_params):
+            if utils.param.validate(params, getattr(models, model_specifier).default_params):
                 params['model'] = model_specifier
                 logger.info('Assuming model type = {}'.format(model_specifier))
             else: RuntimeError('Please specify the model')
@@ -93,10 +94,10 @@ def get_estimator(
 
     if params is not None:
         if model_dir is not None:
-            utils.param.save_config(model_dir + "/config", params)
+            utils.param.save(model_dir + "/config", params)
 
     print("Parameter: {}".format(dict(params)))
-    if not utils.param.config_validator(params, model_module.default_params):
+    if not utils.param.validate(params, model_module.default_params):
         RuntimeError('Invalid config detected')
 
     return tf.estimator.Estimator(
@@ -218,13 +219,12 @@ def hyperparameter_optimize(
         eval_res = None
         model_dir = os.path.join(output, utils.param.config_to_string(params, hash_table=hash_table))
         config_path = os.path.join(model_dir, 'config_hyper_opt')
-        prev_result = util.get_result(model_dir)
 
-        if not allow_duplicate and prev_result is not None:
+        if not allow_duplicate and utils.result.exists(model_dir):
             print('INFO: Duplicate trial found, skippking...')
-            eval_res = {'accuracy': prev_result}
+            eval_res = utils.result.load(model_dir)
 
-        if eval_res is None:
+        else:
             estimator = get_estimator(model_dir=model_dir, save_interval=500, params=params,)
             early_stop = tf.contrib.estimator.stop_if_no_decrease_hook(
                 estimator=estimator,
@@ -251,8 +251,8 @@ def hyperparameter_optimize(
                 eval_res = {"accuracy": -2}
 
         counter += 1
-        utils.param.save_config(config_path, params)
-        util.save_result(model_dir, eval_res['accuracy'])
+        utils.param.save(config_path, params)
+        utils.result.save(eval_res, model_dir)
 
         # Avoid the 'too many open files' issue.
         tf.summary.FileWriterCache.clear()
@@ -309,7 +309,5 @@ def hyperparameter_optimize(
         n_calls=n_calls,
     )
 
-    with open(output + "whole_result", mode="w") as f:
-        f.write(str(res))
-
+    utils.result.save(res, output)
     return res
