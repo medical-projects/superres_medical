@@ -161,7 +161,7 @@ def train(datadir, params=None, iteration=1000, interval=1000, model_dir=None, m
     if model_dir_parent is not None:
         model_dir = os.path.join(
             model_dir_parent,
-            utils.param.config_to_string(params, hash_table=hash_table)
+            utils.param.to_string(params, hash_table=hash_table)
         )
 
     estimator = get_estimator(params=params, model_dir=model_dir, save_interval=interval)
