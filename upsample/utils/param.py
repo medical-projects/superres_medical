@@ -29,7 +29,7 @@ def is_config_available(target_dir):
     """
     return os.path.exists(get_config_path(target_dir))
 
-def load_config(
+def load(
         directory,
         name='config',
         default=None,
@@ -65,7 +65,7 @@ def load_config(
         if default is None:
             logger.error('default config is not provided...')
             return None
-        elif config_validator(params_temp, default, relax_set):
+        elif validate(params_temp, default, relax_set):
             logger.info("params in config file confirmed to be valid")
             params = params_temp
         else:
@@ -76,7 +76,7 @@ def load_config(
         params = params_temp
     return params
 
-def config_validator(config_test, config_ground_truth, relax_set=None):
+def validate(config_test, config_ground_truth, relax_set=None):
     """
     this function checks if the given config is valid or not
     using config_ground_truth
@@ -99,7 +99,7 @@ def config_validator(config_test, config_ground_truth, relax_set=None):
 
     return test_key.issubset(ground_truth_key)
 
-def merge_params(*dicts):
+def merge(*dicts):
     '''
     this func will merge dicts.
     should be useful for templating
@@ -108,7 +108,7 @@ def merge_params(*dicts):
     combined = ChainMap(*dicts)
     return dict(combined)
 
-def save_config(file_target, params, exclude_list=None):
+def save(file_target, params, exclude_list=None):
     '''
     this func will save a paramters
     into a file
@@ -126,7 +126,7 @@ def save_config(file_target, params, exclude_list=None):
         pickle.dump(params_cp, f)
     return
 
-def config_to_string(config, hash_table=None, hash_len=9):
+def to_string(config, hash_table=None, hash_len=9):
     """
     this function converts config to string
     so that it can be used as a directory name or file name
