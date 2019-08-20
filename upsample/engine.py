@@ -53,7 +53,7 @@ def get_estimator(
             this param will be overwritten by it.
     """
     if assign_gpu == 'auto':
-        assign_gpu = utils.resources.get_available_gpus()
+        assign_gpu = utils.resource.get_available_gpus()
 
     config_session = tf.ConfigProto(
         # inter_op_parallelism_threads=tio.FLAGS.cores,
