@@ -18,14 +18,15 @@ def decode_image(encoded_image, determine_shape_=True, skip_read=False):
     '''
     if not skip_read: encoded_image = tf.read_file(encoded_image)
     image = tf.image.decode_image(encoded_image)
-    if determine_shape_: image = determine_shape(image)
+    if determine_shape_: image = determine_image_shape(image)
     return image
 
-def determine_shape(tensor):
+def determine_image_shape(tensor):
     '''
     determine tensor shape
     '''
-    tensor.set_shape(tf.shape(tensor))
+    shape = tf.shape(tensor)
+    tensor = tf.image.crop_to_bounding_box(tensor, 0, 0, shape[0], shape[1])
     return tensor
 
 def image_central_crop_boundingbox(tensor, target_shape):
