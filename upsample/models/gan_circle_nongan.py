@@ -42,8 +42,8 @@ def model(features, labels, mode, params, config):
         target_size = tf.shape(lrimage)[1:] * scale
 
     features = components.semi_densenet(
-        lrimage,
-        [
+        input_=lrimage,
+        block=[
             partial(unit_block, filters=filters)
             for filters in range(
                 params['feature_extract_init_filteres'],
@@ -51,6 +51,7 @@ def model(features, labels, mode, params, config):
                 params['feature_extract_filter_step'],
             )
         ],
+        repetition=12,
     )
 
     output = components.net_in_net(
