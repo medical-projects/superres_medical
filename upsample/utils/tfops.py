@@ -16,7 +16,7 @@ def decode_image(encoded_image, determine_shape=True, skip_read=False):
             otherwise, set this to False so that this func will
             apply tf.read first.
     '''
-    if not skip_read: encoded_image = tf.read(encoded_image)
+    if not skip_read: encoded_image = tf.read_file(encoded_image)
     image = tf.image.decode_image(encoded_image)
     if determine_shape: image = determine_shape(image)
     return image
