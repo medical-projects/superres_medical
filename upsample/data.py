@@ -118,7 +118,7 @@ class DatasetFactory:
         each path will be stored with the specified tag into this dict
         '''
         assert mode in ('train', 'eval')
-        pattern = os.path.join(self.data_dir, mode, '*', '*', '*')
+        pattern = os.path.join(self.datadir, mode, '*', '*', '*')
         dataset = tf.data.Dataset.list_files(pattern)
         dataset = dataset.map(lambda path: {tag: path}, self.ncores)
         return dataset

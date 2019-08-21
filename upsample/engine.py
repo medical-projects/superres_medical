@@ -249,9 +249,6 @@ def hyperparameter_optimize(
                 logger.error('ValueError Occurred')
                 traceback.print_exception(e_type, e_value, e_traceback)
                 eval_res = {"accuracy": -2}
-            except KeyError:
-                print(estimator.params)
-                exit(0)
 
         counter += 1
         utils.param.save(model_dir, params, file_name='config_hyper_opt')
