@@ -19,10 +19,7 @@ def get_config_path(model_dir, config_name='config'):
     '''
     returns path for the config file
     '''
-    try: path = os.path.join(model_dir, config_name)
-    except:
-        print(model_dir, config_name)
-        exit(0)
+    path = os.path.join(model_dir, config_name)
     return path
 
 def is_config_available(target_dir):
@@ -30,6 +27,8 @@ def is_config_available(target_dir):
     this function checks if there is a config file in
     the specified directory.
     """
+    if target_dir is None:
+        return False
     return os.path.exists(get_config_path(target_dir))
 
 def load(
