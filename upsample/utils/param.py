@@ -19,9 +19,10 @@ def get_config_path(model_dir, config_name='config'):
     '''
     returns path for the config file
     '''
-    print(model_dir, config_name)
-    exit(0)
-    path = os.path.join(model_dir, config_name)
+    try: path = os.path.join(model_dir, config_name)
+    except:
+        print(model_dir, config_name)
+        exit(0)
     return path
 
 def is_config_available(target_dir):
