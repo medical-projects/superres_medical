@@ -31,7 +31,7 @@ def unit_block(input_, filters, kernel_size=3):
 def model(features, labels, mode, params, config):
     '''model def'''
     scale = params['upsample_scale']
-    lrimage = features['lowres']
+    lrimage = features['lrimage']
 
     ndim = len(lrimage.get_shape())
 
