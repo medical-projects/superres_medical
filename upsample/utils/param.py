@@ -19,6 +19,8 @@ def get_config_path(model_dir, config_name='config'):
     '''
     returns path for the config file
     '''
+    print(model_dir, config_name)
+    exit(0)
     path = os.path.join(model_dir, config_name)
     return path
 
