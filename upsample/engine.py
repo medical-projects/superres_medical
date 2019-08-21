@@ -137,7 +137,7 @@ def instant_train(data_dir, model_dir, pretrained=None, steps=10000):
         model_dir=model_dir, save_interval=100, warm_start=pretrained
     )
     estimator.train(
-        input_fn=dataset_provider.input_train(batch_size=estimator.param.batch_size),
+        input_fn=dataset_provider.input_train(batch_size=estimator.params.batch_size),
         steps=steps,
     )
     return
@@ -237,7 +237,7 @@ def hyperparameter_optimize(
                 eval_res, export_res = tf.estimator.train_and_evaluate(
                     estimator=estimator,
                     train_spec=tf.estimator.TrainSpec(
-                        input_fn=dataset_provider.input_train(batch_size=estimator.params.batch_size),
+                        input_fn=dataset_provider.input_train(batch_size=estimator.params['batch_size']),
                         max_steps=max_steps, hooks=[early_stop],),
                     eval_spec=tf.estimator.EvalSpec(input_fn=dataset_provider.input_eval(), throttle_secs=0,),
                 )
@@ -251,7 +251,7 @@ def hyperparameter_optimize(
                 eval_res = {"accuracy": -2}
 
         counter += 1
-        utils.param.save(config_path, params, file_name='config_hyper_opt')
+        utils.param.save(model_dir, params, file_name='config_hyper_opt')
         utils.result.save(eval_res, model_dir)
 
         # Avoid the 'too many open files' issue.
