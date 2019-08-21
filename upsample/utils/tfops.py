@@ -35,3 +35,16 @@ def image_central_crop_boundingbox(tensor, target_shape):
             false_fn=lambda: cropped,
         )
     return output
+
+def dataset_map(key_source, key_target, op):
+    '''
+    apply op to elements in a dataset
+    each element is supposed to be a dict
+
+    element[key_target] = op(element[key_source])
+    '''
+    def map_fuc(element):
+        element[key_target] = op(element[key_source])
+        return element
+
+    return map_fuc

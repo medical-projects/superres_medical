@@ -22,7 +22,7 @@ class DatasetFactory:
     ):
         self.datadir = datadir
 
-        if ncores == 'auto': self.ncores = cpu_count()
+        if ncores == 'auto': self.ncores = tf.data.experimental.AUTOTUNE
         else: self.ncores = ncores
 
         if ngpus == 'auto': self.ngpus = utils.resource.get_available_gpus()
@@ -89,7 +89,8 @@ class DatasetFactory:
         pass
 
     def decode(self, dataset, tag='hrimage',):
-        dataset = tfops.dataset_map('path', 'hrimage', tfops.decode_image)
+        map_func = tfops.dataset_map('path', 'hrimage', tfops.decode_image)
+        dataset = dataset.map(map_func, num_parallel_calls=self.ncores)
         return dataset
 
     def add_downsampled(self, dataset, tag='lrimage', method='gaussian'):
@@ -102,7 +103,8 @@ class DatasetFactory:
         '''
         assert method in ('gaussian', 'fft')
         downsample = partial(tfops.downsample, method=method)
-        dataset = tfops.dataset_map('hrimage', 'lrimage', downsample)
+        map_func = tfops.dataset_map('hrimage', 'lrimage', downsample)
+        dataset = dataset.map(map_func, num_parallel_calls=self.ncores)
         return dataset
 
     def dataset_list(
