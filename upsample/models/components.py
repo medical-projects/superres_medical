@@ -18,7 +18,7 @@ def densenet(input_, block, repetition, **block_args):
     outputs.append(block(input_, **block_args))
     for _ in range(repetition):
         outputs.append(block(next_input, **block_args))
-        next_input = tf.concat(outputs)
+        next_input = tf.stack(outputs)
 
     return next_input
 
@@ -40,7 +40,7 @@ def semi_densenet(input_, block, repetition, **block_args):
         outputs.append(block(next_input, **block_args))
         next_input = outputs[-1]
 
-    output = tf.concat(outputs)
+    output = tf.stack(outputs)
     return output
 
 def net_in_net(input_, blocks, args_list=None):
@@ -68,7 +68,7 @@ def net_in_net(input_, blocks, args_list=None):
         for block in blocks:
             outputs.append(blocks(input_))
 
-    return tf.concat(outputs)
+    return tf.stack(outputs)
 
 def chain(input_, block_args_pairs):
     '''
