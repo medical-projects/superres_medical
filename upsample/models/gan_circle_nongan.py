@@ -41,6 +41,7 @@ def model(features, labels, mode, params, config):
     elif ndim == 3:
         target_size = tf.shape(lrimage)[1:] * scale
 
+    print('TAG1: ', lrimage.get_shape())
     features = components.semi_densenet(
         input_=lrimage,
         block=partial(
@@ -57,6 +58,7 @@ def model(features, labels, mode, params, config):
         repetition=12,
     )
 
+    print('TAG2: ', features.get_shape())
     output = components.net_in_net(
         features,
         [
