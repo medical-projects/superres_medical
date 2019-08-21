@@ -43,14 +43,17 @@ def model(features, labels, mode, params, config):
 
     features = components.semi_densenet(
         input_=lrimage,
-        block=[
-            partial(unit_block, filters=filters)
-            for filters in range(
-                params['feature_extract_init_filteres'],
-                params['feature_extract_final_filteres'],
-                params['feature_extract_filter_step'],
-            )
-        ],
+        block=partial(
+            components.chain,
+            block_args_pairs=[
+                (unit_block, {'filters': filters})
+                for filters in range(
+                    params['feature_extract_init_filteres'],
+                    params['feature_extract_final_filteres'],
+                    params['feature_extract_filter_step'],
+                )
+            ],
+        ),
         repetition=12,
     )
 
