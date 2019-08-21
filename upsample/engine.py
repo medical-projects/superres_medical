@@ -71,7 +71,7 @@ def get_estimator(
     )
     params_model = utils.param.load(model_dir, validate=False)
     params_warm = utils.param.load(warm_start, validate=False)
-    params = utils.param.merge_dicts(params_warm, params_model, params)
+    params = utils.param.merge(params_warm, params_model, params)
 
     if params is not None:
         if 'model' in params:
