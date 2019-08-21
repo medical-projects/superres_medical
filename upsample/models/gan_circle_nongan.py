@@ -14,6 +14,7 @@ default_params = {
     'feature_extract_final_filteres': 16,
     'feature_extract_filter_step': 3,
     'upsample_scale': 2,
+    'batch_size': 2,
 }
 
 def unit_block(input_, filters, kernel_size=3):
