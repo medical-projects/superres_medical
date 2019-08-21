@@ -237,7 +237,7 @@ def hyperparameter_optimize(
                 eval_res, export_res = tf.estimator.train_and_evaluate(
                     estimator=estimator,
                     train_spec=tf.estimator.TrainSpec(
-                        input_fn=dataset_provider.input_train(batch_size=estimator.param.batch_size),
+                        input_fn=dataset_provider.input_train(batch_size=estimator.params.batch_size),
                         max_steps=max_steps, hooks=[early_stop],),
                     eval_spec=tf.estimator.EvalSpec(input_fn=dataset_provider.input_eval(), throttle_secs=0,),
                 )
