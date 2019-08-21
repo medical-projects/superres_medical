@@ -7,7 +7,7 @@ from functools import partial
 from upsample.utils import tfops
 import os
 
-default_param = {
+default_params = {
     'model': 'gan_circle_nongan',
     'add_bicubic': True,
     'feature_extract_init_filteres': 64,
