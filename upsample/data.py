@@ -33,7 +33,7 @@ class DatasetFactory:
             self,
             downsample_method='bicubic',
             shuffle=True,
-            shuffle_buffer='5000',
+            shuffle_buffer=5000,
             batch=True,
             batch_size=5,
             prefetch=True,
