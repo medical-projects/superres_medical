@@ -4,6 +4,30 @@ provide various additional tf ops
 
 import tensorflow as tf
 
+def decode_image(encoded_image, determine_shape=True, skip_read=False):
+    '''
+    decode image
+
+    Args:
+        encoded_image: string encoded image or image path
+        determine_shape: whether or not this func should determine the shape
+        skip_read: if encoded_image is a string encoded image,
+            then set this to True.
+            otherwise, set this to False so that this func will
+            apply tf.read first.
+    '''
+    if not skip_read: encoded_image = tf.read(encoded_image)
+    image = tf.image.decode_image(encoded_image)
+    if determine_shape: image = determine_shape(image)
+    return image
+
+def determine_shape(tensor):
+    '''
+    determine tensor shape
+    '''
+    tensor.set_shape(tf.shape(tensor))
+    return tensor
+
 def image_central_crop_boundingbox(tensor, target_shape):
     '''
     crop central part of image according to target_shape
