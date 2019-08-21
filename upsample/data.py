@@ -97,7 +97,7 @@ class DatasetFactory:
         '''
         add downsampled images to the dataset
         '''
-        downsample = partial(tfops.scale, method=method, scale=scale)
+        downsample = partial(tfops.scale_image, method=method, scale=scale)
         map_func = tfops.dataset_map('hrimage', 'lrimage', downsample)
         dataset = dataset.map(map_func, num_parallel_calls=self.ncores)
         return dataset
