@@ -90,7 +90,7 @@ def get_estimator(
     model_module = getattr(models, model_specifier)
     print(model_module)
     print(model_specifier)
-    params = utils.param.merge_params(params_warm, params_model, params, model_module.default_params)
+    params = utils.param.merge(params_warm, params_model, params, model_module.default_params)
 
     if params is not None:
         if model_dir is not None:
