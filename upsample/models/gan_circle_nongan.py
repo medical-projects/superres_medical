@@ -2,7 +2,7 @@
 GAN-CIRCLE without gan structure
 '''
 import tensorflow as tf
-from models import components
+from upsample.models import components
 from functools import partial
 from upsample.utils import tfops
 import os
