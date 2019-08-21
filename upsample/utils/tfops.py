@@ -81,7 +81,7 @@ def scale_image(image, method='bicubic', scale=0.5):
     method = method.lower()
 
     if method in ('bilinear', 'nearest_neighbor', 'bicubic', 'area'):
-        new_size = tf.cast(tf.shape(image)[:2] * scale, tf.int32)
+        new_size = tf.cast(tf.mul(tf.shape(image)[:2], scale), tf.int32)
         scaled_image = tf.image.resize_images(image, size=new_size)
     elif method == 'fft':
         raise NotImplementedError()
