@@ -61,12 +61,13 @@ def model(features, labels, mode, params, config):
         features,
         [
             partial(unit_block, filters=24, kernel_size=1),
-            components.chain(
-                [
+            partial(
+                components.chain,
+                block_args_pairs=[
                     (unit_block, {'filters': 8, 'kernel_size': 1}),
                     (unit_block, {'filters': 8}),
-                ]
-            ),
+                ],
+            )
         ]
     )
 
