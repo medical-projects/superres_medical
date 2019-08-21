@@ -73,3 +73,19 @@ def dataset_map(key_source, key_target, op):
         return element
 
     return map_fuc
+
+def scale_image(image, method='bicubic', scale=0.5):
+    '''
+    downsample an image
+    '''
+    method = method.lower()
+
+    if method in ('bilinear', 'nearest_neighbor', 'bicubic', 'area'):
+        new_size = tf.cast(tf.shape(image)[:2] * scale, tf.int32)
+        scaled_image = tf.image.resize_images(image, size=new_size)
+    elif method == 'fft':
+        raise NotImplementedError()
+    else:
+        raise NotImplementedError()
+
+    return scaled_image
