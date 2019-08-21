@@ -137,7 +137,7 @@ def instant_train(data_dir, model_dir, pretrained=None, steps=10000):
         model_dir=model_dir, save_interval=100, warm_start=pretrained
     )
     estimator.train(
-        input_fn=dataset_provider.input_train(batch_size=estimator.params.batch_size),
+        input_fn=lambda: dataset_provider.input_train(batch_size=estimator.params.batch_size),
         steps=steps,
     )
     return
@@ -168,10 +168,10 @@ def train(datadir, params=None, iteration=1000, interval=1000, model_dir=None, m
     dataset_provider = data.DatasetFactory(datadir=datadir)
     for i in range(iteration):
         estimator.train(
-            input_fn=dataset_provider.input_func_train(batch_size=estimator.param.batch_size),
+            input_fn=lambda: dataset_provider.input_func_train(batch_size=estimator.param.batch_size),
             steps=interval,
         )
-        eval_results = estimator.evaluate(input_fn=dataset_provider.input_eval())
+        eval_results = estimator.evaluate(input_fn=lambda: dataset_provider.input_eval())
     print(eval_results)
 
 
@@ -237,9 +237,9 @@ def hyperparameter_optimize(
                 eval_res, export_res = tf.estimator.train_and_evaluate(
                     estimator=estimator,
                     train_spec=tf.estimator.TrainSpec(
-                        input_fn=dataset_provider.input_train(batch_size=estimator.params['batch_size']),
+                        input_fn=lambda: dataset_provider.input_train(batch_size=estimator.params['batch_size']),
                         max_steps=max_steps, hooks=[early_stop],),
-                    eval_spec=tf.estimator.EvalSpec(input_fn=dataset_provider.input_eval(), throttle_secs=0,),
+                    eval_spec=tf.estimator.EvalSpec(input_fn=lambda: dataset_provider.input_eval(), throttle_secs=0,),
                 )
             except tf.train.NanLossDuringTrainingError:
                 logger.error("Diverged")

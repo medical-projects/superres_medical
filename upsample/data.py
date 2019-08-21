@@ -39,7 +39,6 @@ class DatasetFactory:
             prefetch=True,
             repeat=True,
             prefetch_buffer='auto',
-            return_lambda=True,
     ):
         if self.ngpus == 0:
             actual_batch_size = batch_size
@@ -59,8 +58,7 @@ class DatasetFactory:
         if repeat:
             dataset = dataset.repeat()
 
-        if return_lambda: return lambda: dataset
-        else: return dataset
+        return dataset
 
     def input_eval(
             self,
@@ -69,7 +67,6 @@ class DatasetFactory:
             batch_size=5,
             prefetch=True,
             prefetch_buffer='auto',
-            return_lambda=True,
     ):
         if prefetch_buffer == 'auto':
             prefetch_buffer = tf.data.experimental.AUTOTUNE
@@ -80,8 +77,7 @@ class DatasetFactory:
         dataset = dataset.batch(batch_size)
         dataset = dataset.prefetch(prefetch_buffer)
 
-        if return_lambda: return lambda: dataset
-        else: return dataset
+        return dataset
 
     def input_predict(
             self,
