@@ -60,7 +60,7 @@ def net_in_net(input_, blocks, args_list=None):
     '''
     outputs = []
 
-    if not args_list:
+    if args_list:
         assert len(args_list) == len(blocks)
         for block, args in zip(blocks, args_list):
             outputs.append(blocks(input_, **args))
