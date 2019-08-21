@@ -4,7 +4,7 @@ provide various additional tf ops
 
 import tensorflow as tf
 
-def decode_image(encoded_image, determine_shape=True, skip_read=False):
+def decode_image(encoded_image, determine_shape_=True, skip_read=False):
     '''
     decode image
 
@@ -18,7 +18,7 @@ def decode_image(encoded_image, determine_shape=True, skip_read=False):
     '''
     if not skip_read: encoded_image = tf.read_file(encoded_image)
     image = tf.image.decode_image(encoded_image)
-    if determine_shape: image = determine_shape(image)
+    if determine_shape_: image = determine_shape(image)
     return image
 
 def determine_shape(tensor):
