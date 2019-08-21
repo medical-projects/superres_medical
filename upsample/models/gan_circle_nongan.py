@@ -27,7 +27,7 @@ def unit_block(input_, filters, kernel_size=3):
     )
     return output
 
-def model_fn(features, labels, mode, params, config):
+def model(features, labels, mode, params, config):
     '''model def'''
     scale = params['upsample_scale']
     lrimage = features['lowres']
