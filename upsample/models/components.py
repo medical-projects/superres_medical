@@ -28,7 +28,6 @@ def semi_densenet(
         repetition,
         gather_func=tf.stack,
         stack_in_channel=True,
-        **block_args,
 ):
     '''
     in this func, outputs from each block will be gathered
