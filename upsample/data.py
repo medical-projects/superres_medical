@@ -39,6 +39,7 @@ class DatasetFactory:
             prefetch=True,
             repeat=True,
             prefetch_buffer='auto',
+            size=(512, 512),
     ):
         if self.ngpus == 0:
             actual_batch_size = batch_size
@@ -49,7 +50,7 @@ class DatasetFactory:
             prefetch_buffer = tf.data.experimental.AUTOTUNE
 
         dataset = self.dataset_list(mode='train')
-        dataset = self.decode(dataset)
+        dataset = self.decode(dataset, size=size)
         dataset = self.add_downsampled(dataset, method=downsample_method)
         dataset = self._split_feature_label(dataset)
         dataset = dataset.shuffle(shuffle_buffer)
@@ -78,12 +79,13 @@ class DatasetFactory:
             batch_size=5,
             prefetch=True,
             prefetch_buffer='auto',
+            size=(512, 512),
     ):
         if prefetch_buffer == 'auto':
             prefetch_buffer = tf.data.experimental.AUTOTUNE
 
         dataset = self.dataset_list(mode='eval')
-        dataset = self.decode(dataset)
+        dataset = self.decode(dataset, size=size)
         dataset = self.add_downsampled(dataset, method=downsample_method)
         dataset = self._split_feature_label(dataset)
         dataset = dataset.batch(batch_size)
@@ -96,7 +98,7 @@ class DatasetFactory:
     ):
         pass
 
-    def decode(self, dataset, tag='hrimage', normalize=True):
+    def decode(self, dataset, tag='hrimage', normalize=True, size=None):
         dataset = dataset.map(
             lambda x: tfops.dict_map(x, 'path', 'hrimage', tfops.decode_image),
             num_parallel_calls=self.ncores,
@@ -109,6 +111,12 @@ class DatasetFactory:
         if normalize:
             dataset = dataset.map(
                 lambda x: tfops.dict_map(x, 'hrimage', 'hrimage', func),
+                num_parallel_calls=self.ncores,
+            )
+
+        if size is not None:
+            dataset = dataset.map(
+                lambda x: tfops.dict_map(x, 'hrimage', 'hrimage', lambda image: tf.image.resize_images(image, size)),
                 num_parallel_calls=self.ncores,
             )
 
