@@ -18,8 +18,18 @@ def decode_image(encoded_image, determine_shape_=True, skip_read=False):
     '''
     if not skip_read: encoded_image = tf.read_file(encoded_image)
     image = tf.image.decode_image(encoded_image)
-    if determine_shape_: image = determine_image_shape(image)
+    if determine_shape_:
+        image = determine_image_shape(image)
+        image = determine_image_channel(image, 1)
     return image
+
+def determine_image_channel(tensor, channel=1):
+    '''
+    detemrine the image color channel
+    '''
+    shape = tensor.get_shape()
+    tensor = tf.reshape(tensor, [*shape[:2], channel])
+    return tensor
 
 def determine_image_shape(tensor):
     '''
