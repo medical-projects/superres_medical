@@ -77,7 +77,7 @@ def model(features, labels, mode, params, config):
 
     output = unit_block(output, filters=32)
     output = tf.layers.conv2d_transpose(
-        output, filters=16, kernel_size=4, stride=scale,
+        output, filters=16, kernel_size=4, strides=scale,
         activation=tf.nn.leaky_relu, use_bias=False,
     )
     output = tf.layers.conv2d(output, filters=1, kernel_size=3, activation=None, use_bias=False)
