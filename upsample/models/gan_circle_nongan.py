@@ -19,8 +19,8 @@ default_params = {
 
 def unit_block(input_, filters, kernel_size=3):
     output = input_
+    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     print(input_.get_shape)
-    exit(0)
     output = tf.layers.conv2d(
         output,
         filters=filters,
@@ -32,6 +32,7 @@ def unit_block(input_, filters, kernel_size=3):
     with tf.control_dependencies([tf.print(tf.shape(output))]):
         return output
     print(output.get_shape())
+    exit(0)
     return output
 
 def model(features, labels, mode, params, config):
