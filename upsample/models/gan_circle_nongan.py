@@ -30,7 +30,6 @@ def unit_block(input_, filters, kernel_size=3):
     )
 
     print(output.get_shape())
-    exit(0)
     with tf.control_dependencies([tf.print(tf.shape(output))]):
         return output
     return output
