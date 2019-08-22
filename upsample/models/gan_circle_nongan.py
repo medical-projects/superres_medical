@@ -29,10 +29,10 @@ def unit_block(input_, filters, kernel_size=3):
         activation=tf.nn.leaky_relu,
     )
 
-    with tf.control_dependencies([tf.print(tf.shape(output))]):
-        return output
     print(output.get_shape())
     exit(0)
+    with tf.control_dependencies([tf.print(tf.shape(output))]):
+        return output
     return output
 
 def model(features, labels, mode, params, config):
