@@ -26,6 +26,9 @@ def unit_block(input_, filters, kernel_size=3):
         padding='same',
         activation=tf.nn.leaky_relu,
     )
+
+    with tf.control_dependencies([tf.print(tf.shape(output))]):
+        return output
     return output
 
 def model(features, labels, mode, params, config):
@@ -98,11 +101,6 @@ def model(features, labels, mode, params, config):
 
     hrimage = labels['hrimage']
     hrimage = tfops.image_central_crop_boundingbox(hrimage, target_size)
-    # hrimage = tf.cond(
-    #     tf.reduce_all(tf.equal(tf.shape(hrimage), tf.shape(output))),
-    #     true_fn=lambda: hrimage,
-    #     false_fn=lambda: tfops.image_central_crop_boundingbox(hrimage, target_size),
-    # )
 
     loss = tf.losses.mean_squared_error(hrimage, output)
 
