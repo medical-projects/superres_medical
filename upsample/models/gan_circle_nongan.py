@@ -51,8 +51,8 @@ def model(features, labels, mode, params, config):
 
     features = components.semi_densenet(
         input_=lrimage,
-        block=partial(
-            components.chain,
+        block=lambda in_: components.chain(
+            in_,
             block_args_pairs=[
                 (unit_block, {'filters': filters})
                 for filters in range(
@@ -60,7 +60,7 @@ def model(features, labels, mode, params, config):
                     params['feature_extract_final_filteres'],
                     params['feature_extract_filter_step'],
                 )
-            ],
+            ]
         ),
         repetition=12,
         gather_func=lambda x: tf.concat(x, axis=-1)
@@ -70,9 +70,9 @@ def model(features, labels, mode, params, config):
     output = components.net_in_net(
         features,
         [
-            partial(unit_block, filters=24, kernel_size=1),
-            partial(
-                components.chain,
+            lambda in_: unit_block(in_, filters=24, kernel_size=1),
+            lambda in_: components.chain(
+                in_,
                 block_args_pairs=[
                     (unit_block, {'filters': 8, 'kernel_size': 1}),
                     (unit_block, {'filters': 8}),
