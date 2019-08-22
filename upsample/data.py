@@ -51,6 +51,7 @@ class DatasetFactory:
         dataset = self.dataset_list(mode='train')
         dataset = self.decode(dataset)
         dataset = self.add_downsampled(dataset, method=downsample_method)
+        dataset = self._split_feature_label(dataset)
         dataset = dataset.shuffle(shuffle_buffer)
         dataset = dataset.batch(actual_batch_size)
         dataset = dataset.prefetch(prefetch_buffer)
@@ -58,6 +59,16 @@ class DatasetFactory:
         if repeat:
             dataset = dataset.repeat()
 
+        return dataset
+
+    def _split_feature_label(self, dataset):
+        '''
+        split label from features
+        '''
+        dataset = dataset.map(
+            lambda x: tfops.dict_split(x, ['hrimage']),
+            num_parallel_calls=self.ncores,
+        )
         return dataset
 
     def input_eval(
@@ -74,6 +85,7 @@ class DatasetFactory:
         dataset = self.dataset_list(mode='eval')
         dataset = self.decode(dataset)
         dataset = self.add_downsampled(dataset, method=downsample_method)
+        dataset = self._split_feature_label(dataset)
         dataset = dataset.batch(batch_size)
         dataset = dataset.prefetch(prefetch_buffer)
 

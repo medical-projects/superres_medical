@@ -97,3 +97,15 @@ def scale_image(image, method='bicubic', scale=0.5):
         raise NotImplementedError()
 
     return scaled_image
+
+def dict_split(dict_, split_target):
+    '''
+    for a given dict, this func will take values
+    corresponding to specified keys (split_target),
+    and make a sencond dict which holds extracted values.
+
+    return value will be a tuple(dict_, new_dict)
+    '''
+    new_dict = {key: dict_[key] for key in split_target}
+    for key in split_target: del(dict_[key])
+    return (dict_, new_dict)

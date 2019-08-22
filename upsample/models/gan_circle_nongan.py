@@ -37,13 +37,12 @@ def model(features, labels, mode, params, config):
 
     if ndim == 4:
         original_shape = tf.shape(lrimage)
-        target_size = tf.concat([original_shape[1:-1] * scale, [original_shape[-1]]], axis=0)
+        target_size = [original_shape[1:-1] * scale]
     elif ndim == 3:
         target_size = tf.shape(lrimage)[1:] * scale
     else:
         RuntimeError()
 
-    print('TAG1: ', lrimage.get_shape())
     features = components.semi_densenet(
         input_=lrimage,
         block=partial(
@@ -61,7 +60,6 @@ def model(features, labels, mode, params, config):
         gather_func=lambda x: tf.concat(x, axis=-1)
     )
 
-    print('TAG2: ', features.get_shape())
     output = components.net_in_net(
         features,
         [
@@ -98,7 +96,7 @@ def model(features, labels, mode, params, config):
         #  so saver hook above is useful for eval and predict
         return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
 
-    hrimage = labels['highres']
+    hrimage = labels['hrimage']
     hrimage = tf.cond(
         tf.equal(tf.shape(hrimage), tf.shape(output)),
         true_fn=lambda: hrimage,
