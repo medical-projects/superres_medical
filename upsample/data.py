@@ -86,12 +86,7 @@ class DatasetFactory:
 
     def decode(self, dataset, tag='hrimage',):
         dataset = dataset.map(
-            lambda x: tfops.dict_map(x, 'path', 'hrimage', tf.read_file),
-            num_parallel_calls=self.ncores,
-        )
-
-        dataset = dataset.map(
-            lambda x: tfops.dict_map(x, 'hrimage', 'hrimage', tfops.decode_image),
+            lambda x: tfops.dict_map(x, 'path', 'hrimage', tfops.decode_image),
             num_parallel_calls=self.ncores,
         )
 

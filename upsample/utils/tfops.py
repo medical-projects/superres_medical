@@ -28,7 +28,7 @@ def determine_image_channel(tensor, channel=1):
     detemrine the image color channel
     '''
     shape = tensor.get_shape()
-    tensor = tensor.set_shape([*shape[:2], channel])
+    tensor.set_shape([*shape[:2], channel])
     return tensor
 
 def determine_image_shape(tensor):
