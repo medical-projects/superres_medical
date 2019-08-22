@@ -103,7 +103,7 @@ class DatasetFactory:
         )
 
         def func(x):
-            x = tf.sub(tf.div(x, 255.0), 0.5)
+            x = tf.subtract(tf.div(x, 255.0), 0.5)
             return x
 
         if normalize:
