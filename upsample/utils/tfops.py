@@ -47,14 +47,14 @@ def image_central_crop_boundingbox(tensor, target_shape):
     '''
     current_shape = tf.shape(tensor)
 
-    offset_height = (current_shape[1] - target_shape[1]) // 2
-    offset_width = (current_shape[2] - target_shape[2]) // 2
+    offset_width = (current_shape[1] - target_shape[0]) // 2
+    offset_height = (current_shape[2] - target_shape[1]) // 2
     cropped = tf.image.crop_to_bounding_box(
         tensor,
-        offset_height=offset_height,
         offset_width=offset_width,
+        offset_height=offset_height,
+        target_width=target_shape[0],
         target_height=target_shape[1],
-        target_width=target_shape[1],
     )
 
     with tf.control_dependencies([
