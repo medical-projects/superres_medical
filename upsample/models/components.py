@@ -49,7 +49,7 @@ def semi_densenet(
 
     next_input = input_
     for _ in range(repetition):
-        outputs.append(block(next_input, **block_args))
+        outputs.append(block(next_input))
         next_input = outputs[-1]
 
     output = gather_func(outputs)
