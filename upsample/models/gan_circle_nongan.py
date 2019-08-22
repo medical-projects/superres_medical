@@ -37,7 +37,7 @@ def model(features, labels, mode, params, config):
 
     if ndim == 4:
         original_shape = tf.shape(lrimage)
-        target_size = [original_shape[1:-1] * scale]
+        target_size = original_shape[1:-1] * scale
     elif ndim == 3:
         target_size = tf.shape(lrimage)[1:] * scale
     else:
