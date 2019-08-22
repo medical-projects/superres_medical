@@ -40,6 +40,8 @@ def model(features, labels, mode, params, config):
         target_size = tf.concat([original_shape[1:-1] * scale, [original_shape[-1]]], axis=0)
     elif ndim == 3:
         target_size = tf.shape(lrimage)[1:] * scale
+    else:
+        RuntimeError()
 
     print('TAG1: ', lrimage.get_shape())
     features = components.semi_densenet(
