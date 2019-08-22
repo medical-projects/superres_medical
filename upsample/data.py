@@ -107,7 +107,7 @@ class DatasetFactory:
             return x
 
         if normalize:
-            dataset = tf.dataset.map(
+            dataset = dataset.map(
                 lambda x: tfops.dict_map(x, 'hrimage', 'hrimage', func),
                 num_parallel_calls=self.ncores,
             )
