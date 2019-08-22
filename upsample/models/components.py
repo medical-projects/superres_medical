@@ -22,7 +22,14 @@ def densenet(input_, block, repetition, **block_args):
 
     return next_input
 
-def semi_densenet(input_, block, repetition, **block_args):
+def semi_densenet(
+        input_,
+        block,
+        repetition,
+        gather_func=tf.stack,
+        stack_in_channel=True,
+        **block_args,
+):
     '''
     in this func, outputs from each block will be gathered
     and concated at the end.
@@ -32,6 +39,12 @@ def semi_densenet(input_, block, repetition, **block_args):
         block: constituent of densenet
         repetition: the num of blocks
         block_args: args for the block
+        gather_func: the function to gather results
+            this func is supposed to receive a list of tensors
+            and return one tensor
+        stack_in_channel: whether or not the results should be stacked
+            in the channel axis(axis=2).
+            this is recommended if your data is image.
     '''
     outputs = []
 
@@ -40,10 +53,15 @@ def semi_densenet(input_, block, repetition, **block_args):
         outputs.append(block(next_input, **block_args))
         next_input = outputs[-1]
 
-    output = tf.stack(outputs)
+    output = gather_func(outputs)
     return output
 
-def net_in_net(input_, blocks, args_list=None):
+def net_in_net(
+        input_,
+        blocks,
+        gather_func=tf.stack,
+        args_list=None,
+):
     '''
     this func represents network in network structure
 
@@ -68,7 +86,7 @@ def net_in_net(input_, blocks, args_list=None):
         for block in blocks:
             outputs.append(block(input_))
 
-    return tf.stack(outputs)
+    return gather_func(outputs)
 
 def chain(input_, block_args_pairs):
     '''

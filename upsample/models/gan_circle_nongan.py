@@ -56,6 +56,7 @@ def model(features, labels, mode, params, config):
             ],
         ),
         repetition=12,
+        gather_func=lambda x: tf.concat(x, axis=-1)
     )
 
     print('TAG2: ', features.get_shape())
@@ -70,7 +71,8 @@ def model(features, labels, mode, params, config):
                     (unit_block, {'filters': 8}),
                 ],
             )
-        ]
+        ],
+        gather_func=lambda x: tf.concat(x, axis=-1),
     )
 
     output = unit_block(output, filters=32)
