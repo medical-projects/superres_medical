@@ -85,11 +85,16 @@ class DatasetFactory:
         pass
 
     def decode(self, dataset, tag='hrimage',):
-        map_func = tfops.dataset_map('path', 'hrimage', tf.read_file)
-        dataset = dataset.map(map_func, num_parallel_calls=self.ncores)
+        dataset = dataset.map(
+            lambda x: tfops.dict_map(x, 'path', 'hrimage', tf.read_file),
+            num_parallel_calls=self.ncores,
+        )
 
-        map_func = tfops.dataset_map('hrimage', 'hrimage', tfops.decode_image)
-        dataset = dataset.map(map_func, num_parallel_calls=self.ncores)
+        dataset = dataset.map(
+            lambda x: tfops.dict_map(x, 'hrimage', 'hrimage', tfops.decode_image),
+            num_parallel_calls=self.ncores,
+        )
+
         return dataset
 
     def add_downsampled(self, dataset, tag='lrimage', method='bicubic', scale=0.5):
@@ -97,8 +102,11 @@ class DatasetFactory:
         add downsampled images to the dataset
         '''
         downsample = partial(tfops.scale_image, method=method, scale=scale)
-        map_func = tfops.dataset_map('hrimage', 'lrimage', downsample)
-        dataset = dataset.map(map_func, num_parallel_calls=self.ncores)
+
+        dataset = dataset.map(
+            lambda x: tfops.dict_map(x, 'hrimage', 'lrimage', downsample),
+            num_parallel_calls=self.ncores,
+        )
         return dataset
 
     def dataset_list(

@@ -71,18 +71,16 @@ def image_central_crop_boundingbox(tensor, target_shape):
         )
     return output
 
-def dataset_map(key_source, key_target, op):
+def dict_map(dict_in, key_source, key_target, op):
     '''
     apply op to elements in a dataset
     each element is supposed to be a dict
 
     element[key_target] = op(element[key_source])
     '''
-    def map_fuc(element):
-        element[key_target] = op(element[key_source])
-        return element
+    dict_in[key_target] = op(dict_in[key_source])
 
-    return map_fuc
+    return dict_in
 
 def scale_image(image, method='bicubic', scale=0.5):
     '''
