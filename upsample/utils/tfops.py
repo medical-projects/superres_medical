@@ -19,7 +19,7 @@ def decode_image(encoded_image, determine_shape_=True, skip_read=False):
     if not skip_read: encoded_image = tf.read_file(encoded_image)
     image = tf.image.decode_image(encoded_image)
     if determine_shape_:
-        image = determine_image_shape(image)
+        # image = determine_image_shape(image)
         image = determine_image_channel(image, 1)
     return image
 
@@ -28,7 +28,7 @@ def determine_image_channel(tensor, channel=1):
     detemrine the image color channel
     '''
     shape = tensor.get_shape()
-    tensor = tf.reshape(tensor, [*shape[:2], channel])
+    tensor = tensor.set_shape([*shape[:2], channel])
     return tensor
 
 def determine_image_shape(tensor):
@@ -36,7 +36,7 @@ def determine_image_shape(tensor):
     determine tensor shape
     '''
     shape = tf.shape(tensor)
-    tensor = tf.image.crop_to_bounding_box(tensor, 0, 0, shape[0], shape[1])
+    tensor = tf.image.resize_image_with_crop_or_pad(tensor, shape[0], shape[1])
     return tensor
 
 def image_central_crop_boundingbox(tensor, target_shape):
