@@ -65,7 +65,7 @@ def image_central_crop_boundingbox(tensor, target_shape):
             )
     ]):
         output = tf.cond(
-            tf.equal(current_shape[1:2], target_shape[0:1]),
+            tf.reduce_all(tf.equal(current_shape[1:2], target_shape[0:1])),
             true_fn=lambda: tensor,
             false_fn=lambda: cropped,
         )
