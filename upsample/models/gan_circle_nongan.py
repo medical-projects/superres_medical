@@ -29,6 +29,7 @@ def unit_block(input_, filters, kernel_size=3):
 
     with tf.control_dependencies([tf.print(tf.shape(output))]):
         return output
+    print(output.get_shape())
     return output
 
 def model(features, labels, mode, params, config):
