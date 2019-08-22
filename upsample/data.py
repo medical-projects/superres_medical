@@ -85,7 +85,10 @@ class DatasetFactory:
         pass
 
     def decode(self, dataset, tag='hrimage',):
-        map_func = tfops.dataset_map('path', 'hrimage', tfops.decode_image)
+        map_func = tfops.dataset_map('path', 'hrimage', tf.read_file)
+        dataset = dataset.map(map_func, num_parallel_calls=self.ncores)
+
+        map_func = tfops.dataset_map('hrimage', 'hrimage', tfops.decode_image)
         dataset = dataset.map(map_func, num_parallel_calls=self.ncores)
         return dataset
 
