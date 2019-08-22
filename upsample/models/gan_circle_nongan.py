@@ -97,11 +97,12 @@ def model(features, labels, mode, params, config):
         return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
 
     hrimage = labels['hrimage']
-    hrimage = tf.cond(
-        tf.reduce_all(tf.equal(tf.shape(hrimage), tf.shape(output))),
-        true_fn=lambda: hrimage,
-        false_fn=lambda: tfops.image_central_crop_boundingbox(output, target_size),
-    )
+    hrimage = tfops.image_central_crop_boundingbox(hrimage, target_size)
+    # hrimage = tf.cond(
+    #     tf.reduce_all(tf.equal(tf.shape(hrimage), tf.shape(output))),
+    #     true_fn=lambda: hrimage,
+    #     false_fn=lambda: tfops.image_central_crop_boundingbox(hrimage, target_size),
+    # )
 
     loss = tf.losses.mean_squared_error(hrimage, output)
 
