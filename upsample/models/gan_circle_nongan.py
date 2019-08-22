@@ -98,7 +98,7 @@ def model(features, labels, mode, params, config):
 
     hrimage = labels['hrimage']
     hrimage = tf.cond(
-        tf.equal(tf.shape(hrimage), tf.shape(output)),
+        tf.all(tf.equal(tf.shape(hrimage), tf.shape(output))),
         true_fn=lambda: hrimage,
         false_fn=lambda: tfops.image_central_crop_boundingbox(output, target_size),
     )
