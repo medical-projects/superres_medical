@@ -103,7 +103,7 @@ class DatasetFactory:
         )
 
         def func(x):
-            x = tf.subtract(tf.div(x, 255.0), 0.5)
+            x = tf.subtract(tf.div(tf.cast(x, tf.float32), tf.cast(255.0, tf.float32)), tf.cast(0.5, tf.float32))
             return x
 
         if normalize:
