@@ -73,7 +73,7 @@ def model(features, labels, mode, params, config):
             partial(
                 components.chain,
                 block_args_pairs=[
-                    (unit_block, {'filters': 8, 'kernel_size': 1}),
+                    (unit_block, {'filters': 8, 'kernel_size': 3}),
                     (unit_block, {'filters': 8}),
                 ],
             )
