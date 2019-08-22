@@ -19,6 +19,8 @@ default_params = {
 
 def unit_block(input_, filters, kernel_size=3):
     output = input_
+    print(input_.get_shape)
+    exit(0)
     output = tf.layers.conv2d(
         output,
         filters=filters,
