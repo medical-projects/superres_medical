@@ -96,11 +96,21 @@ class DatasetFactory:
     ):
         pass
 
-    def decode(self, dataset, tag='hrimage',):
+    def decode(self, dataset, tag='hrimage', normalize=True):
         dataset = dataset.map(
             lambda x: tfops.dict_map(x, 'path', 'hrimage', tfops.decode_image),
             num_parallel_calls=self.ncores,
         )
+
+        def func(x):
+            x = tf.sub(tf.div(x, 255.0), 0.5)
+            return x
+
+        if normalize:
+            dataset = tf.dataset.map(
+                lambda x: tfops.dict_map(x, 'hrimage', 'hrimage', func),
+                num_parallel_calls=self.ncores,
+            )
 
         return dataset
 

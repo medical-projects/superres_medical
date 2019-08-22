@@ -56,10 +56,6 @@ def image_central_crop_boundingbox(tensor, target_shape):
         target_width=target_shape[0],
         target_height=target_shape[1],
     )
-    print(tensor)
-    print(cropped)
-    print(current_shape)
-    print(target_shape)
 
     with tf.control_dependencies([
             tf.assert_greater_equal(
