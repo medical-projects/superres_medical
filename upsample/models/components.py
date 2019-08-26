@@ -99,5 +99,6 @@ def chain(input_, block_args_pairs):
     '''
     output = input_
     for block, args in block_args_pairs:
+        print('chain')
         output = block(output, **args)
     return output
