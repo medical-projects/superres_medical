@@ -17,7 +17,7 @@ candidates = OrderedDict([
     ('add_bicubic', [True, False]),
     ('feature_extract_init_filteres', [32, 64]),
     ('feature_extract_final_filteres', [8, 16, 32]),
-    ('feature_extract_filter_step', [3, 6]),
+    ('feature_extract_filter_step', [-3, -6]),
     ('upsample_scale', [2]),
     ('batch_size', [2]),
 ])
