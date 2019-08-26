@@ -50,8 +50,6 @@ def semi_densenet(
     next_input = input_
     for _ in range(repetition):
         print('HERE')
-        print(block)
-        print(next_input)
         outputs.append(block(next_input))
         next_input = outputs[-1]
 
@@ -99,7 +97,6 @@ def chain(input_, block_args_pairs):
     Args:
         block_args_pairs: a list of tuple(block, args)
     '''
-    print(block_args_pairs)
     output = input_
     for block, args in block_args_pairs:
         print('chain')

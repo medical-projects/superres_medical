@@ -12,7 +12,7 @@ default_params = {
     'add_bicubic': True,
     'feature_extract_init_filteres': 64,
     'feature_extract_final_filteres': 16,
-    'feature_extract_filter_step': 3,
+    'feature_extract_filter_step': -3,
     'upsample_scale': 2,
     'batch_size': 2,
 }
