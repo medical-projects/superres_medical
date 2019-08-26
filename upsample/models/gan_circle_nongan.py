@@ -19,8 +19,7 @@ default_params = {
 
 def unit_block(input_, filters, kernel_size=3):
     output = input_
-    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-    print(input_.get_shape())
+    print('in', input_.get_shape())
     output = tf.layers.conv2d(
         output,
         filters=filters,
@@ -29,7 +28,7 @@ def unit_block(input_, filters, kernel_size=3):
         activation=tf.nn.leaky_relu,
     )
 
-    print(output.get_shape())
+    print('out', output.get_shape())
     with tf.control_dependencies([tf.print(tf.shape(output))]):
         return output
     return output
@@ -93,6 +92,7 @@ def model(features, labels, mode, params, config):
 
     if params['add_bicubic']:
         output = output + bicubic
+    print('#########################################')
 
     predictions = {
         'predicted': output,
