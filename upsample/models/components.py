@@ -50,6 +50,8 @@ def semi_densenet(
     next_input = input_
     for _ in range(repetition):
         print('HERE')
+        print(block)
+        print(next_input)
         outputs.append(block(next_input))
         next_input = outputs[-1]
 
