@@ -49,10 +49,12 @@ def semi_densenet(
 
     next_input = input_
     for _ in range(repetition):
+        print('HERE')
         outputs.append(block(next_input))
         next_input = outputs[-1]
 
     output = gather_func(outputs)
+    exit(0)
     return output
 
 def net_in_net(
