@@ -48,6 +48,10 @@ def model(features, labels, mode, params, config):
         target_size = tf.shape(lrimage)[1:] * scale
     else:
         RuntimeError()
+    print(
+        params['feature_extract_init_filteres'],
+        params['feature_extract_final_filteres'],
+        params['feature_extract_filter_step'],)
 
     features = components.semi_densenet(
         input_=lrimage,

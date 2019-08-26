@@ -98,6 +98,7 @@ def chain(input_, block_args_pairs):
         block_args_pairs: a list of tuple(block, args)
     '''
     output = input_
+    print(block_args_pairs)
     for block, args in block_args_pairs:
         print('chain')
         output = block(output, **args)
