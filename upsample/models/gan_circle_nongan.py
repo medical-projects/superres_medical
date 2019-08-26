@@ -29,8 +29,8 @@ def unit_block(input_, filters, kernel_size=3):
     )
 
     print('out', output.get_shape())
-    with tf.control_dependencies([tf.print(tf.shape(output))]):
-        return output
+    # with tf.control_dependencies([tf.print(tf.shape(output))]):
+    #     return output
     return output
 
 def model(features, labels, mode, params, config):
@@ -64,7 +64,6 @@ def model(features, labels, mode, params, config):
         repetition=12,
         gather_func=lambda x: tf.concat(x, axis=-1)
     )
-    print('#########################################')
 
     output = components.net_in_net(
         features,
@@ -92,7 +91,6 @@ def model(features, labels, mode, params, config):
 
     if params['add_bicubic']:
         output = output + bicubic
-    print('#########################################')
 
     predictions = {
         'predicted': output,
