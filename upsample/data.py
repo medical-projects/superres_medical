@@ -105,7 +105,9 @@ class DatasetFactory:
         )
 
         def func(x):
-            x = tf.subtract(tf.div(tf.cast(x, tf.float32), tf.cast(255.0, tf.float32)), tf.cast(0.5, tf.float32))
+            x = tf.subtract(
+                tf.div(tf.cast(x, tf.float32), 255.0), tf.cast(0.5, tf.float32)
+            )
             return x
 
         if normalize:
@@ -116,7 +118,9 @@ class DatasetFactory:
 
         if size is not None:
             dataset = dataset.map(
-                lambda x: tfops.dict_map(x, 'hrimage', 'hrimage', lambda image: tf.image.resize_images(image, size)),
+                lambda x: tfops.dict_map(
+                    x, 'hrimage', 'hrimage', lambda image: tf.image.resize_images(image, size)
+                ),
                 num_parallel_calls=self.ncores,
             )
 
