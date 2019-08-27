@@ -4,23 +4,19 @@ provide various additional tf ops
 
 import tensorflow as tf
 
-def decode_image(encoded_image, determine_shape_=True, skip_read=False):
+def decode_image(encoded_image, skip_read=False, channels=1):
     '''
     decode image
 
     Args:
         encoded_image: string encoded image or image path
-        determine_shape: whether or not this func should determine the shape
         skip_read: if encoded_image is a string encoded image,
             then set this to True.
             otherwise, set this to False so that this func will
             apply tf.read first.
     '''
     if not skip_read: encoded_image = tf.read_file(encoded_image)
-    image = tf.image.decode_image(encoded_image)
-    if determine_shape_:
-        # image = determine_image_shape(image)
-        image = determine_image_channel(image, 1)
+    image = tf.image.decode_jpeg(encoded_image, channels=channels)
     return image
 
 def determine_image_channel(tensor, channel=1):
@@ -109,3 +105,10 @@ def dict_split(dict_, split_target):
     new_dict = {key: dict_[key] for key in split_target}
     for key in split_target: del(dict_[key])
     return (dict_, new_dict)
+
+def dict_delete(dict_, targets):
+    '''
+    delete specified keys from given dict
+    '''
+    for target in targets: del dict_[target]
+    return dict_

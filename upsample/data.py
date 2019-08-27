@@ -86,11 +86,43 @@ class DatasetFactory:
 
         dataset = self.dataset_list(mode='eval')
         dataset = self.decode(dataset, size=size)
+        dataset = self.make_patches(dataset, 'hrimage', 'hrimage')
         dataset = self.add_downsampled(dataset, method=downsample_method)
         dataset = self._split_feature_label(dataset)
         dataset = dataset.batch(batch_size)
         dataset = dataset.prefetch(prefetch_buffer)
 
+        return dataset
+
+    def make_patches(
+            self,
+            dataset,
+            source_key,
+            target_key,
+            remove_source=False,
+            patch_size=64,
+    ):
+        '''
+        extract patches out of image
+        '''
+        ksizes = [1, patch_size, patch_size, 1]
+        strides = [1, patch_size // 2, patch_size // 2, 1]
+
+        dataset = dataset.map(
+            lambda x: tfops.dict_map(
+                x, source_key, target_key,
+                lambda image: tf.image.extract_image_patches(
+                    image, ksizes=ksizes, strides=strides, rates=[1] * 4, padding='VALID',
+                ),
+            ),
+            num_parallel_calls=self.ncores,
+        )
+
+        if remove_source:
+            dataset = dataset.map(
+                lambda x: tfops.dict_delete(x, [source_key]),
+                num_parallel_calls=self.ncores,
+            )
         return dataset
 
     def input_predict(
@@ -105,9 +137,7 @@ class DatasetFactory:
         )
 
         def func(x):
-            x = tf.subtract(
-                tf.div(tf.cast(x, tf.float32), 255.0), tf.cast(0.5, tf.float32)
-            )
+            x = tf.subtract(tf.div(tf.cast(x, tf.float32), 255.0), 0.5)
             return x
 
         if normalize:
