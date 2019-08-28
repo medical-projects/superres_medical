@@ -170,6 +170,7 @@ class DatasetFactory:
         strides = [1, patch_size // 2, patch_size // 2, 1]
         path = dict_['path']
         image = tfops.decode_image(path)
+        image = tf.div(tf.cast(image, tf.float32), 255.0)
         image = tf.expand_dims(image, 0)
         pathes = tf.image.extract_image_patches(
             image, ksizes=ksizes, strides=strides, rates=[1] * 4, padding='VALID',
