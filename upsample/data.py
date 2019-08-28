@@ -175,7 +175,7 @@ class DatasetFactory:
             image, ksizes=ksizes, strides=strides, rates=[1] * 4, padding='VALID',
         )
         patches = tf.transpose(pathes, [3, 1, 2, 0])
-        dataset = tf.data.Dataset.from_sparse_tensor_slices(patches)
+        dataset = tf.data.Dataset.from_tensor_slices(patches)
 
         if preserve_input:
             dataset = dataset.map(
