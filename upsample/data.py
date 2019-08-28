@@ -137,7 +137,7 @@ class DatasetFactory:
             lambda x: tfops.dict_map(
                 x, source_key, target_key,
                 lambda image: tf.image.extract_image_patches(
-                    image, ksizes=ksizes, strides=strides, rates=[1] * 4, padding='VALID',
+                    image, ksizes=ksizes, strides=strides, rates=[1] * 4, padding='SAME',
                 ),
             ),
             num_parallel_calls=self.ncores,
