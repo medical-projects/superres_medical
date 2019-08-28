@@ -49,10 +49,7 @@ class DatasetFactory:
         if prefetch_buffer == 'auto':
             prefetch_buffer = tf.data.experimental.AUTOTUNE
 
-        dataset = self.dataset_list(mode='train')
-        dataset = self.decode(dataset, size=size)
-        dataset = self.add_downsampled(dataset, method=downsample_method)
-        dataset = self._split_feature_label(dataset)
+        dataset = self.base(mode='eval', downsample_method=downsample_method, size=size)
         dataset = dataset.shuffle(shuffle_buffer)
         dataset = dataset.batch(actual_batch_size)
         dataset = dataset.prefetch(prefetch_buffer)
@@ -72,6 +69,29 @@ class DatasetFactory:
         )
         return dataset
 
+    def base(
+            self,
+            mode,
+            downsample_method='bicubic',
+            size=(512, 512),
+    ):
+        '''
+        generate base dataset
+        '''
+        dataset = self.dataset_list(mode=mode)
+        dataset = self.decode(dataset, size=size)
+        dataset = self.add_downsampled(dataset, method=downsample_method)
+        dataset = self._split_feature_label(dataset)
+        return dataset
+
+    # TODO: improve the efficiency
+    '''
+    instead of applying decode and extract_patches separately,
+    we should combine these ops.
+    then we don't have to deal with tedious tasks like
+    patial unbatching and so on so forth
+    '''
+
     def input_eval(
             self,
             downsample_method='bicubic',
@@ -84,11 +104,7 @@ class DatasetFactory:
         if prefetch_buffer == 'auto':
             prefetch_buffer = tf.data.experimental.AUTOTUNE
 
-        dataset = self.dataset_list(mode='eval')
-        dataset = self.decode(dataset, size=size)
-        dataset = self.make_patches(dataset, 'hrimage', 'hrimage')
-        dataset = self.add_downsampled(dataset, method=downsample_method)
-        dataset = self._split_feature_label(dataset)
+        dataset = self.base(mode='eval', downsample_method=downsample_method, size=size)
         dataset = dataset.batch(batch_size)
         dataset = dataset.prefetch(prefetch_buffer)
 
@@ -101,9 +117,18 @@ class DatasetFactory:
             target_key,
             remove_source=False,
             patch_size=64,
+            separate=True,
     ):
         '''
         extract patches out of image
+
+        Args:
+            dataset: input dataset
+            source_key: image to take patches from
+            target: the key where patches are stored
+            remove_source: whether the source should be removed
+            patch_size: patch size
+            separate: whether each patches should be separate examples in dataset
         '''
         ksizes = [1, patch_size, patch_size, 1]
         strides = [1, patch_size // 2, patch_size // 2, 1]
@@ -130,30 +155,40 @@ class DatasetFactory:
     ):
         pass
 
+    def _dataset_patches(self, dict_, store_key, patch_size=64, preserve_input=True):
+        '''
+        make a dataset containing small patches
+
+        Args:
+            dict_: dictionary data
+                this dict should have key:"path"
+                from which patches are taken.
+                all the data in this dict will be preserved
+            store_key: to which key to save patches
+        '''
+        ksizes = [1, patch_size, patch_size, 1]
+        strides = [1, patch_size // 2, patch_size // 2, 1]
+        path = dict_['path']
+        image = tfops.decode_image(path)
+        image = tf.expand_dims(image, 0)
+        pathes = tf.image.extract_image_patches(
+            image, ksizes=ksizes, strides=strides, rates=[1] * 4, padding='VALID',
+        )
+        patches = tf.transpose(pathes, [3, 1, 2, 0])
+        dataset = tf.data.Dataset.from_sparse_tensor_slices(patches)
+
+        if preserve_input:
+            dataset = dataset.map(
+                lambda patch: tfops.dict_add(dict_, store_key, patch),
+                num_parallel_calls=self.ncores,
+            )
+        return dataset
+
     def decode(self, dataset, tag='hrimage', normalize=True, size=None):
-        dataset = dataset.map(
-            lambda x: tfops.dict_map(x, 'path', 'hrimage', tfops.decode_image),
+        dataset = dataset.interleave(
+            lambda x: self._dataset_patches(x, 'hrimage'),
             num_parallel_calls=self.ncores,
         )
-
-        def func(x):
-            x = tf.subtract(tf.div(tf.cast(x, tf.float32), 255.0), 0.5)
-            return x
-
-        if normalize:
-            dataset = dataset.map(
-                lambda x: tfops.dict_map(x, 'hrimage', 'hrimage', func),
-                num_parallel_calls=self.ncores,
-            )
-
-        if size is not None:
-            dataset = dataset.map(
-                lambda x: tfops.dict_map(
-                    x, 'hrimage', 'hrimage', lambda image: tf.image.resize_images(image, size)
-                ),
-                num_parallel_calls=self.ncores,
-            )
-
         return dataset
 
     def add_downsampled(self, dataset, tag='lrimage', method='bicubic', scale=0.5):

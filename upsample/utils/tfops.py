@@ -112,3 +112,15 @@ def dict_delete(dict_, targets):
     '''
     for target in targets: del dict_[target]
     return dict_
+
+def dict_add(dict_, new_key, new_val):
+    '''
+    add a value into a dict
+
+    NOTE
+    This func WON'T return a deep copy.
+    keep in mind that this func has a side effect
+    and changes the content of input dictionary
+    '''
+    dict_[new_key] = new_val
+    return dict_
