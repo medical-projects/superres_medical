@@ -126,8 +126,8 @@ def model(features, labels, mode, params, config):
     # Estimators will save summaries while training session but not in eval or predict,
     #  so saver hook above is useful for eval and predict
     eval_metric_ops = {
-        'mse': tf.metrics.mean_squared_error(hrimage, output),
-        'mae': tf.metrics.mean_absolute_error(hrimage, output),
+        'eval/mse': tf.metrics.mean_squared_error(hrimage, output),
+        'eval/mae': tf.metrics.mean_absolute_error(hrimage, output),
     }
     return tf.estimator.EstimatorSpec(
         mode=mode, loss=loss, eval_metric_ops=eval_metric_ops, evaluation_hooks=[summary_saver_hook]

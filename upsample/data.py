@@ -166,16 +166,19 @@ class DatasetFactory:
                 all the data in this dict will be preserved
             store_key: to which key to save patches
         '''
+        print('WARNING: size is ignored!!')
         ksizes = [1, patch_size, patch_size, 1]
         strides = [1, patch_size // 2, patch_size // 2, 1]
         path = dict_['path']
         image = tfops.decode_image(path)
         image = tf.div(tf.cast(image, tf.float32), 255.0)
         image = tf.expand_dims(image, 0)
-        pathes = tf.image.extract_image_patches(
+        patches = tf.image.extract_image_patches(
             image, ksizes=ksizes, strides=strides, rates=[1] * 4, padding='VALID',
         )
-        patches = tf.transpose(pathes, [3, 1, 2, 0])
+        print(patches.get_shape())
+        exit(0)
+        patches = tf.transpose(patches, [3, 1, 2, 0])
         dataset = tf.data.Dataset.from_tensor_slices(patches)
 
         if preserve_input:
@@ -192,12 +195,12 @@ class DatasetFactory:
             num_parallel_calls=self.ncores,
         )
 
-        # # TEMP
-        # def temp(x):
-        #     tf.write_file('/kw_resouces/results/upsample/temp/test.jpg', tf.image.encode_jpeg(x['hrimage']))
-        #     return x
-        # dataset = dataset.map(temp)
-        # # TEMP
+        # TEMP
+        def temp(x):
+            tf.write_file('/kw_resouces/results/upsample/temp/test.jpg', tf.image.encode_jpeg(x['hrimage']))
+            return x
+        dataset = dataset.map(temp)
+        # TEMP
         return dataset
 
     def add_downsampled(self, dataset, tag='lrimage', method='bicubic', scale=0.5):
