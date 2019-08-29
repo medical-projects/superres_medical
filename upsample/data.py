@@ -193,15 +193,6 @@ class DatasetFactory:
             num_parallel_calls=self.ncores,
         )
 
-        # TEMP
-        def temp(x):
-            tf.write_file(
-                '/kw_resouces/results/upsample/temp/test.jpg',
-                tf.image.encode_jpeg(tf.cast(tf.multiply(x['hrimage'], 255.0), tf.uint8))
-            )
-            return x
-        dataset = dataset.map(temp)
-        # TEMP
         return dataset
 
     def add_downsampled(self, dataset, tag='lrimage', method='bicubic', scale=0.5):
