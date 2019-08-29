@@ -176,8 +176,6 @@ class DatasetFactory:
         patches = tf.image.extract_image_patches(
             image, ksizes=ksizes, strides=strides, rates=[1] * 4, padding='VALID',
         )
-        print(patches.get_shape())
-        exit(0)
         patches = tf.transpose(patches, [3, 1, 2, 0])
         dataset = tf.data.Dataset.from_tensor_slices(patches)
 
