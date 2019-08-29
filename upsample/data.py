@@ -195,7 +195,10 @@ class DatasetFactory:
 
         # TEMP
         def temp(x):
-            tf.write_file('/kw_resouces/results/upsample/temp/test.jpg', tf.image.encode_jpeg(x['hrimage']))
+            tf.write_file(
+                '/kw_resouces/results/upsample/temp/test.jpg',
+                tf.cast(tf.multiply(tf.image.encode_jpeg(x['hrimage']), 255.0), tf.uint8)
+            )
             return x
         dataset = dataset.map(temp)
         # TEMP
