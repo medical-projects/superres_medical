@@ -19,7 +19,6 @@ default_params = {
 
 def unit_block(input_, filters, kernel_size=3):
     output = input_
-    print('in', input_.get_shape())
     output = tf.layers.conv2d(
         output,
         filters=filters,
@@ -28,9 +27,6 @@ def unit_block(input_, filters, kernel_size=3):
         activation=tf.nn.leaky_relu,
     )
 
-    print('out', output.get_shape())
-    # with tf.control_dependencies([tf.print(tf.shape(output))]):
-    #     return output
     return output
 
 def model(features, labels, mode, params, config):
@@ -128,6 +124,7 @@ def model(features, labels, mode, params, config):
     eval_metric_ops = {
         'eval/mse': tf.metrics.mean_squared_error(hrimage, output),
         'eval/mae': tf.metrics.mean_absolute_error(hrimage, output),
+        'accuracy': -tf.metrics.mean_absolute_error(hrimage, output),
     }
     return tf.estimator.EstimatorSpec(
         mode=mode, loss=loss, eval_metric_ops=eval_metric_ops, evaluation_hooks=[summary_saver_hook]

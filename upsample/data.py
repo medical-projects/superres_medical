@@ -142,6 +142,7 @@ class DatasetFactory:
             ),
             num_parallel_calls=self.ncores,
         )
+        print('kesizes', ksizes)
 
         if remove_source:
             dataset = dataset.map(
