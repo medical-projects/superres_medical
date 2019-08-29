@@ -182,6 +182,8 @@ def hyperparameter_optimize(
         max_steps=5000,
         n_calls=200,
         allow_duplicate=False,
+        target_key='accuracy',
+        minimize=True,
         logger=logger,
 ):
     """
@@ -243,12 +245,14 @@ def hyperparameter_optimize(
                 )
             except tf.train.NanLossDuringTrainingError:
                 logger.error("Diverged")
-                eval_res = {"accuracy": -1}
+                if minimize: eval_res = {target_key: np.Inf}
+                else: eval_res = {target_key: -np.Inf}
             except ValueError:
                 e_type, e_value, e_traceback = sys.exc_info()
                 logger.error('ValueError Occurred')
                 traceback.print_exception(e_type, e_value, e_traceback)
-                eval_res = {"accuracy": -2}
+                if minimize: eval_res = {target_key: np.Inf}
+                else: eval_res = {target_key: -np.Inf}
 
         counter += 1
         utils.param.save(model_dir, params, file_name='config_hyper_opt')
@@ -256,7 +260,8 @@ def hyperparameter_optimize(
 
         # Avoid the 'too many open files' issue.
         tf.summary.FileWriterCache.clear()
-        return -eval_res["accuracy"]
+        if minimize: return eval_res[target_key]
+        else: return -eval_res[target_key]
 
     def determine_param(params_list, fixed_params, unfixed_params):
         '''
