@@ -36,6 +36,11 @@ def model(features, labels, mode, params, config):
 
     ndim = len(lrimage.get_shape())
 
+    # TODO:
+    '''
+    insert image size check here
+    '''
+
     if ndim == 4:
         original_shape = tf.shape(lrimage)
         target_size = original_shape[1:-1] * scale

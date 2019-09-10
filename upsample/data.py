@@ -167,7 +167,6 @@ class DatasetFactory:
                 all the data in this dict will be preserved
             store_key: to which key to save patches
         '''
-        print('WARNING: size is ignored!!')
         ksizes = [1, patch_size, patch_size, 1]
         strides = [1, patch_size // 2, patch_size // 2, 1]
         path = dict_['path']
