@@ -88,7 +88,7 @@ def model(features, labels, mode, params, config):
     )
     output = tf.layers.conv2d(output, filters=1, kernel_size=3, activation=None, use_bias=False)
 
-    with tf.control_dependencies([tf.print('target_size', target_size)]):
+    with tf.control_dependencies([tf.print('target_size', target_size, 'original_shape', original_shape)]):
         bicubic = tf.image.resize_bicubic(lrimage, target_size)
 
     if params['add_bicubic']:
