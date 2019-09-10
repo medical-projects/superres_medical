@@ -168,7 +168,8 @@ class DatasetFactory:
             store_key: to which key to save patches
         '''
         ksizes = [1, patch_size, patch_size, 1]
-        strides = [1, patch_size // 2, patch_size // 2, 1]
+        # strides = [1, patch_size // 2, patch_size // 2, 1]
+        strides = [1, patch_size, patch_size, 1]
         path = dict_['path']
         image = tfops.decode_image(path)
         image = tf.div(tf.cast(image, tf.float32), 255.0)
