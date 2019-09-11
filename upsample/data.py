@@ -110,47 +110,6 @@ class DatasetFactory:
 
         return dataset
 
-    def make_patches(
-            self,
-            dataset,
-            source_key,
-            target_key,
-            remove_source=False,
-            patch_size=64,
-            separate=True,
-    ):
-        '''
-        extract patches out of image
-
-        Args:
-            dataset: input dataset
-            source_key: image to take patches from
-            target: the key where patches are stored
-            remove_source: whether the source should be removed
-            patch_size: patch size
-            separate: whether each patches should be separate examples in dataset
-        '''
-        ksizes = [1, patch_size, patch_size, 1]
-        strides = [1, patch_size // 2, patch_size // 2, 1]
-
-        dataset = dataset.map(
-            lambda x: tfops.dict_map(
-                x, source_key, target_key,
-                lambda image: tf.image.extract_image_patches(
-                    image, ksizes=ksizes, strides=strides, rates=[1] * 4, padding='SAME',
-                ),
-            ),
-            num_parallel_calls=self.ncores,
-        )
-        print('kesizes', ksizes)
-
-        if remove_source:
-            dataset = dataset.map(
-                lambda x: tfops.dict_delete(x, [source_key]),
-                num_parallel_calls=self.ncores,
-            )
-        return dataset
-
     def input_predict(
             self,
     ):
