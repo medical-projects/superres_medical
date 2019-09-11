@@ -3,6 +3,7 @@ test dataset
 '''
 
 # built in
+import argparse
 
 # external
 import tensorflow as tf
@@ -21,3 +22,11 @@ def test_base(datadir):
             while True:
                 print(sess.run(e))
     return
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--datadir', required=True)
+    args = parser.parse_args()
+
+    test_base(args.datadir)
