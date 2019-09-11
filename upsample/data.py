@@ -173,13 +173,17 @@ class DatasetFactory:
         strides = [1, patch_size, patch_size, 1]
         path = dict_['path']
         image = tfops.decode_image(path)
+        nchannels = tf.shape(image)[-1]
         image = tf.div(tf.cast(image, tf.float32), 255.0)
         image = tf.expand_dims(image, 0)
         patches = tf.image.extract_image_patches(
             image, ksizes=ksizes, strides=strides, rates=[1] * 4, padding='VALID',
         )
-        with tf.control_dependencies([tf.print('patches', tf.shape(patches))]):
-            patches = tf.transpose(patches, [3, 1, 2, 0])
+        patches = tf.transpose(patches, [3, 1, 2, 0])
+        npixels = tf.shape(patches)[0]
+        patches = tf.reshape(patches, [npixels, -1])
+        patches = tf.reshape(patches, [*ksizes[1:3], nchannels, -1])
+        patches = tf.transpose(patches, [3, 0, 1, 2])
         dataset = tf.data.Dataset.from_tensor_slices(patches)
 
         if preserve_input:
