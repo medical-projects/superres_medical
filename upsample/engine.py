@@ -143,7 +143,14 @@ def instant_train(data_dir, model_dir, pretrained=None, steps=10000):
     return
 
 
-def train(datadir, params=None, iteration=1000, interval=1000, model_dir=None, model_dir_parent=None):
+def train(
+        dataset_provider,
+        params=None,
+        iteration=1000,
+        interval=1000,
+        model_dir=None,
+        model_dir_parent=None,
+):
     """
     this function trains the model for adding label for each token
     Args:
@@ -159,19 +166,12 @@ def train(datadir, params=None, iteration=1000, interval=1000, model_dir=None, m
 
     tf.summary.FileWriterCache.clear()
     if model_dir_parent is not None:
-        model_dir = os.path.join(
-            model_dir_parent,
-            utils.param.to_string(params, hash_table=hash_table)
-        )
+        model_dir = os.path.join(model_dir_parent, utils.param.to_string(params, hash_table=hash_table))
 
     estimator = get_estimator(params=params, model_dir=model_dir, save_interval=interval)
-    dataset_provider = data.DatasetFactory(datadir=datadir)
     for i in range(iteration):
-        estimator.train(
-            input_fn=lambda: dataset_provider.input_func_train(batch_size=estimator.param.batch_size),
-            steps=interval,
-        )
-        eval_results = estimator.evaluate(input_fn=lambda: dataset_provider.input_eval())
+        estimator.train(input_fn=dataset_provider.train, steps=interval)
+        eval_results = estimator.evaluate(input_fn=dataset_provider.eval)
     print(eval_results)
 
 
@@ -282,7 +282,7 @@ def hyperparameter_optimize(
                 print(len(params_list))
                 exit(0)
         for key, val in fixed_params:
-            assert key not in params.keys(), 'Key:{} is conflicting'.format(key)
+            assert key not in params, 'Key:{} is conflicting'.format(key)
             params[key] = val
         return params
 

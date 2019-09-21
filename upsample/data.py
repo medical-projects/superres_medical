@@ -17,46 +17,44 @@ class DatasetFactory:
     def __init__(
             self,
             datadir,
-            ncores='auto',
-            ngpus='auto',
-    ):
-        self.datadir = datadir
-
-        if ncores == 'auto': self.ncores = tf.data.experimental.AUTOTUNE
-        else: self.ncores = ncores
-
-        if ngpus == 'auto': self.ngpus = utils.resource.get_available_gpus()
-        else: self.ngpus = ngpus
-        return
-
-    def input_train(
-            self,
-            downsample_method='bicubic',
-            shuffle=True,
-            shuffle_buffer=200,
-            batch=True,
+            size=(512, 512),
+            patch_size=80,
             batch_size=5,
             prefetch=True,
-            repeat=True,
+            ncores='auto',
+            ngpus='auto',
             prefetch_buffer='auto',
-            size=(512, 512),
+            downsample_method='bicubic',
+            shuffle=True,
+            shuffle_buffer=1000,
+            batch=True,
     ):
-        if self.ngpus == 0:
-            actual_batch_size = batch_size
-        else:
-            actual_batch_size = batch_size // self.ngpus
+        self.datadir = datadir
+        self.size = size
+        self.patch_size = patch_size
+        self.batch_size = batch_size
+        self.prefetch = prefetch
+        self.ncores = ncores
+        self.ngpus = ngpus
+        self.prefetch_buffer = prefetch_buffer
+        self.downsample_method = downsample_method
+        self.shuffle = shuffle
+        self.shuffle_buffer = shuffle_buffer
+        self.batch = batch
 
-        if prefetch_buffer == 'auto':
-            prefetch_buffer = tf.data.experimental.AUTOTUNE
+        if ncores == 'auto': self.ncores = tf.data.experimental.AUTOTUNE
+        if ngpus == 'auto': self.ngpus = utils.resource.get_available_gpus()
+        if prefetch_buffer == 'auto': self.prefetch_buffer = tf.data.experimental.AUTOTUNE
+        return
 
-        dataset = self.base(mode='eval', downsample_method=downsample_method, size=size)
-        dataset = dataset.shuffle(shuffle_buffer)
+    def train(self, repeat=True,):
+        if self.ngpus == 0: actual_batch_size = self.batch_size
+        else: actual_batch_size = self.batch_size // self.ngpus
+
+        dataset = self.base(mode='train')
         dataset = dataset.batch(actual_batch_size)
-        dataset = dataset.prefetch(prefetch_buffer)
-
-        if repeat:
-            dataset = dataset.repeat()
-
+        if self.prefetch: dataset = dataset.prefetch(self.prefetch_buffer)
+        if repeat: dataset = dataset.repeat(None)
         return dataset
 
     def _split_feature_label(self, dataset):
@@ -69,45 +67,25 @@ class DatasetFactory:
         )
         return dataset
 
-    def base(
-            self,
-            mode,
-            downsample_method='bicubic',
-            size=(512, 512),
-    ):
+    def base(self, mode,):
         '''
         generate base dataset
         '''
         dataset = self.dataset_list(mode=mode)
-        dataset = self.decode(dataset, size=size)
-        dataset = self.add_downsampled(dataset, method=downsample_method)
+        dataset = self.decode(dataset)
+        dataset = self.add_downsampled(dataset, method=self.downsample_method)
         dataset = self._split_feature_label(dataset)
+        if self.shuffle: dataset = dataset.shuffle(self.shuffle_buffer)
         return dataset
 
-    # TODO: improve the efficiency
-    '''
-    instead of applying decode and extract_patches separately,
-    we should combine these ops.
-    then we don't have to deal with tedious tasks like
-    patial unbatching and so on so forth
-    '''
-
-    def input_eval(
+    def eval(
             self,
             downsample_method='bicubic',
             batch=True,
-            batch_size=5,
-            prefetch=True,
-            prefetch_buffer='auto',
-            size=(512, 512),
     ):
-        if prefetch_buffer == 'auto':
-            prefetch_buffer = tf.data.experimental.AUTOTUNE
-
-        dataset = self.base(mode='eval', downsample_method=downsample_method, size=size)
-        dataset = dataset.batch(batch_size)
-        dataset = dataset.prefetch(prefetch_buffer)
-
+        dataset = self.base(mode='eval')
+        dataset = dataset.batch(self.batch_size)
+        if self.prefetch: dataset = dataset.prefetch(self.prefetch_buffer)
         return dataset
 
     def input_predict(
@@ -115,7 +93,7 @@ class DatasetFactory:
     ):
         pass
 
-    def _dataset_patches(self, dict_, store_key, patch_size=64, preserve_input=True):
+    def _dataset_patches(self, dict_, store_key, preserve_input=True):
         '''
         make a dataset containing small patches
 
@@ -126,23 +104,18 @@ class DatasetFactory:
                 all the data in this dict will be preserved
             store_key: to which key to save patches
         '''
-        # ksizes = [1, patch_size, patch_size, 1]
-        ksizes = [1, patch_size * 2, patch_size * 2, 1]
-        # strides = [1, patch_size // 2, patch_size // 2, 1]
-        strides = [1, patch_size, patch_size, 1]
-        path = dict_['path']
-        image = tfops.decode_image(path)
+        ksizes = [1, self.patch_size, self.patch_size, 1]
+        strides = [1, self.patch_size // 2, self.patch_size // 2, 1]
+        image = tfops.decode_image(dict_['path'])
         nchannels = tf.shape(image)[-1]
         image = tf.div(tf.cast(image, tf.float32), 255.0)
         image = tf.expand_dims(image, 0)
         patches = tf.image.extract_image_patches(
             image, ksizes=ksizes, strides=strides, rates=[1] * 4, padding='VALID',
         )
-        patches = tf.transpose(patches, [3, 1, 2, 0])
-        npixels = tf.shape(patches)[0]
-        patches = tf.reshape(patches, [npixels, -1])
-        patches = tf.reshape(patches, [*ksizes[1:3], nchannels, -1])
-        patches = tf.transpose(patches, [3, 0, 1, 2])
+        npixels = tf.shape(patches)[-1]
+        patches = tf.reshape(patches, [-1, npixels])
+        patches = tf.reshape(patches, [-1, *ksizes[1:3], nchannels])
         dataset = tf.data.Dataset.from_tensor_slices(patches)
 
         if preserve_input:

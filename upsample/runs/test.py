@@ -5,12 +5,13 @@ and train the model
 """
 # built-in
 from collections import OrderedDict
+import argparse
 
 # external
-import tensorflow as tf
 
 # original
 import upsample.engine as engine
+from upsample import data
 
 candidates = OrderedDict([
     ('model', ['gan_circle_nongan']),
@@ -23,11 +24,12 @@ candidates = OrderedDict([
 ])
 
 
-def main():
+def main(datadir, batch_size, output):
+    dataset_provider = data.DatasetFactory(datadir=datadir, batch_size=batch_size)
     engine.hyperparameter_optimize(
-        datadir="/kw_resources/datasets/projects/upsample",
+        dataset_provider=dataset_provider,
         candidates=candidates,
-        output='/kw_resources/results/upsample/hyper_opt_res',
+        output=output,
         target_key='eval/mae',
         minimize=True,
     )
@@ -35,4 +37,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--datadir', required=True, default='/kw_resources/datasets/projects/upsample')
+    parser.add_argument('--output', default='/kw_resources/results/upsample/hyper_opt_res')
+    parser.add_argument('--batch_size', default=10, type=int)
+    args = parser.parse_args()
+    main(**vars(args))
