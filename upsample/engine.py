@@ -176,7 +176,7 @@ def train(
 
 
 def hyperparameter_optimize(
-        datadir,
+        dataset_provider,
         candidates,
         output="hyper_opt_res",
         max_steps=5000,
@@ -208,7 +208,6 @@ def hyperparameter_optimize(
     """
     assert isinstance(candidates, OrderedDict), 'candidates must be OrderedDict'
     hash_table = utils.hash.HashTable(save_file=os.path.join(output, 'hash_table'))
-    dataset_provider = data.DatasetFactory(datadir=datadir)
 
     def wrapper(params_list, unfixed_params, fixed_params=[]):
         """wrapper func for get_estimator"""
