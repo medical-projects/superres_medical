@@ -38,7 +38,7 @@ def main(datadir, batch_size, output):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--datadir', required=True, default='/kw_resources/datasets/projects/upsample')
+    parser.add_argument('--datadir', default='/kw_resources/datasets/projects/upsample')
     parser.add_argument('--output', default='/kw_resources/results/upsample/hyper_opt_res')
     parser.add_argument('--batch_size', default=10, type=int)
     args = parser.parse_args()
