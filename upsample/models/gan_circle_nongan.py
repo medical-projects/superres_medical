@@ -45,6 +45,7 @@ def model(features, labels, mode, params, config):
     else:
         RuntimeError()
 
+    set_trace()
     features = components.semi_densenet(
         input_=lrimage,
         block=lambda in_: components.chain(
