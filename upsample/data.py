@@ -5,6 +5,7 @@ provides functions for data io
 import os
 from functools import partial
 from multiprocessing import cpu_count
+from pdb import set_trace
 
 # external
 import tensorflow as tf
@@ -28,6 +29,7 @@ class DatasetFactory:
             shuffle=True,
             shuffle_buffer=1000,
             batch=True,
+            channels=1,
     ):
         self.datadir = datadir
         self.size = size
@@ -41,6 +43,7 @@ class DatasetFactory:
         self.shuffle = shuffle
         self.shuffle_buffer = shuffle_buffer
         self.batch = batch
+        self.channels = channels
 
         if ncores == 'auto': self.ncores = tf.data.experimental.AUTOTUNE
         if ngpus == 'auto': self.ngpus = utils.resource.get_available_gpus()
@@ -106,8 +109,8 @@ class DatasetFactory:
         '''
         ksizes = [1, self.patch_size, self.patch_size, 1]
         strides = [1, self.patch_size // 2, self.patch_size // 2, 1]
-        image = tfops.decode_image(dict_['path'])
-        nchannels = tf.shape(image)[-1]
+        image = tfops.decode_image(dict_['path'], channels=self.channels)
+        nchannels = image.get_shape()[-1]
         image = tf.div(tf.cast(image, tf.float32), 255.0)
         image = tf.expand_dims(image, 0)
         patches = tf.image.extract_image_patches(
