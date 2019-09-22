@@ -5,6 +5,7 @@ test dataset
 # built in
 import unittest
 import random
+from pdb import set_trace
 
 # external
 import tensorflow as tf
@@ -25,13 +26,14 @@ class TestDataFeeder(unittest.TestCase):
         patch_size = random.randrange(120, 300)
         df = DatasetFactory('', patch_size=patch_size)
         ds = df._dataset_patches({'path': '/home/yoshihiko/Downloads/test.jpg'}, 'output')
+        set_trace()
         for e in ds:
             patch = e['output'].numpy()
             self.assertEqual(patch.shape[0], patch_size)
             self.assertEqual(patch.shape[1], patch_size)
-            cv2.imshow('test', (patch * 255).astype(np.uint8))
-            key = cv2.waitKey(0)
-            if key & 0xFF == ord('q'): break
+            # cv2.imshow('test', (patch * 255).astype(np.uint8))
+            # key = cv2.waitKey(0)
+            # if key & 0xFF == ord('q'): break
         return
 
 

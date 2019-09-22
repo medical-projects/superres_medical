@@ -6,6 +6,7 @@ from upsample.models import components
 from functools import partial
 from upsample.utils import tfops
 import os
+from pdb import set_trace
 
 default_params = {
     'model': 'gan_circle_nongan',
@@ -19,6 +20,7 @@ default_params = {
 
 def unit_block(input_, filters, kernel_size=3):
     output = input_
+    set_trace()
     output = tf.layers.conv2d(
         output,
         filters=filters,
