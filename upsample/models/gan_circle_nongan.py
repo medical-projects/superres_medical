@@ -103,10 +103,14 @@ def model(features, labels, mode, params, config):
 
     loss = tf.losses.mean_squared_error(hrimage, output)
 
-    tf.summary.image('predicted', predictions['predicted'])
-    tf.summary.image('bicubic', bicubic)
-    tf.summary.image('ground-truth', hrimage)
+    # tf.summary.image('predicted', predictions['predicted'])
+    # tf.summary.image('bicubic', bicubic)
+    # tf.summary.image('ground-truth', hrimage)
     tf.summary.image('input', lrimage)
+    tf.summary.image(
+        'predicted|bicubic|ground-truth',
+        tf.concat([predictions['predicted'], bicubic, hrimage], axis=2)
+    )
 
     # Configure the Training Op (for TRAIN mode)
     if mode == tf.estimator.ModeKeys.TRAIN:
