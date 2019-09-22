@@ -3,6 +3,7 @@ provide various additional tf ops
 '''
 
 import tensorflow as tf
+from pdb import set_trace
 
 def decode_image(encoded_image, skip_read=False, channels=1):
     '''
@@ -85,7 +86,7 @@ def scale_image(image, method='bicubic', scale=0.5):
     method = method.lower()
 
     if method in ('bilinear', 'nearest_neighbor', 'bicubic', 'area'):
-        new_size = tf.cast(tf.multiply(tf.cast(tf.shape(image)[:2], tf.float32), tf.cast(scale, tf.float32)), tf.int32)
+        new_size = tf.cast(tf.cast(tf.shape(image)[:2], tf.float32) * scale, tf.int32)
         scaled_image = tf.image.resize_images(image, size=new_size)
     elif method == 'fft':
         raise NotImplementedError()
