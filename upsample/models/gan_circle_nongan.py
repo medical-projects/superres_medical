@@ -20,7 +20,6 @@ default_params = {
 
 def unit_block(input_, filters, kernel_size=3):
     output = input_
-    set_trace()
     output = tf.layers.conv2d(
         output,
         filters=filters,
@@ -38,11 +37,6 @@ def model(features, labels, mode, params, config):
 
     ndim = len(lrimage.get_shape())
 
-    # TODO:
-    '''
-    insert image size check here
-    '''
-
     if ndim == 4:
         original_shape = tf.shape(lrimage)
         target_size = original_shape[1:-1] * scale
@@ -51,6 +45,7 @@ def model(features, labels, mode, params, config):
     else:
         RuntimeError()
 
+    set_trace()
     features = components.semi_densenet(
         input_=lrimage,
         block=lambda in_: components.chain(
