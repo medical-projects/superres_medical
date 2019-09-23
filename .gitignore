@@ -2,3 +2,4 @@ data/*
 todo
 *.pyc
 start_debugging.py
+env/*
