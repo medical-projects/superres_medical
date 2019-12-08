@@ -25,7 +25,10 @@ candidates = OrderedDict([
 
 
 def main(datadir, batch_size, output):
-    dataset_provider = data.DatasetFactory(datadir=datadir, batch_size=batch_size)
+    dataset_provider = data.DatasetFactory(
+        datadir=datadir,
+        batch_size=batch_size,
+    )
     engine.hyperparameter_optimize(
         dataset_provider=dataset_provider,
         candidates=candidates,

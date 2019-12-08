@@ -24,6 +24,7 @@ class DatasetFactory:
             prefetch=True,
             ncores='auto',
             ngpus='auto',
+            downsample_scale=0.5,
             prefetch_buffer='auto',
             downsample_method='bicubic',
             shuffle=True,
@@ -38,6 +39,7 @@ class DatasetFactory:
         self.prefetch = prefetch
         self.ncores = ncores
         self.ngpus = ngpus
+        self.downsample_scale = downsample_scale
         self.prefetch_buffer = prefetch_buffer
         self.downsample_method = downsample_method
         self.shuffle = shuffle
@@ -76,7 +78,11 @@ class DatasetFactory:
         '''
         dataset = self.dataset_list(mode=mode)
         dataset = self.decode(dataset)
-        dataset = self.add_downsampled(dataset, method=self.downsample_method)
+        dataset = self.add_downsampled(
+            dataset,
+            method=self.downsample_method,
+            scale=self.downsample_scale,
+        )
         dataset = self._split_feature_label(dataset)
         if self.shuffle: dataset = dataset.shuffle(self.shuffle_buffer)
         return dataset
